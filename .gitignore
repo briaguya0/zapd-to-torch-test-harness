@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+
+# Local Shipwright AppImage / CI build used to produce the reference O2R
+shipwright-bin/
