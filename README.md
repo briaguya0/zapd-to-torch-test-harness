@@ -27,7 +27,6 @@ assets/yml/   config.yml (committed) + per-version YAMLs (gitignored, generated)
 dma/          DMA tables per ROM version
 manifests/    sha256 manifests of reference O2R contents (14 files, 17 ROMs)
 supplemental/ per-version supplemental asset metadata (from generate_supplemental.py)
-vtx/          pre-computed VTX metadata per version (legacy; superseded by supplemental/)
 o2r/          reference.o2r / generated.o2r (gitignored, local)
 roms/         OoT ROMs (gitignored, local)
 logs/         torch run logs (gitignored)
@@ -98,8 +97,7 @@ diff <(jq -S . manifests/pal_gc.json) <(jq -S . /tmp/regen.json) && echo MATCH
 ### 2. Generate the YAMLs
 
 `zapd_to_torch.py` needs two committed data inputs besides the Shipwright XML: a
-**DMA table** and a **VTX metadata** file. Both ship in the repo and both are
-reproducible from the pinned submodule + ROM.
+**DMA table** and the **supplemental metadata**. Both ship in the repo.
 
 **DMA tables (`dma/`)** — file → ROM offsets, produced by `extract_dma.py`. It
 reads each ROM in `roms/` plus the matching **filelist**, which is not something
@@ -128,10 +126,8 @@ python3 tools/generate_supplemental.py \
     supplemental/pal_gc.json
 ```
 
-This single file **replaces** the older `--vtx-json` / `--rom-assets-json` /
-`--undeclared-json` inputs (from `extract_vtx.py`, `extract_rom_assets.py`,
-`catalog_undeclared.py`) — those tools still exist but you don't need them when
-using `--supplemental-json`.
+`supplemental/pal_gc.json` is committed, so you don't need a reference O2R just to
+generate the YAMLs — only regenerate it when bumping the `shipwright/` submodule.
 
 Now convert Shipwright XML → Torch YAML, injecting the supplemental data:
 
@@ -143,8 +139,8 @@ python3 tools/zapd_to_torch.py \
     --supplemental-json supplemental/pal_gc.json
 ```
 
-> Using `--vtx-json` alone (without supplemental) declares only ~18.5k assets and
-> leaves ~12k "not generated" — the supplemental injection is what closes the gap.
+Without the supplemental injection the XML declares only ~18.5k of the 35,386
+assets, leaving ~12k "not generated" — the supplemental data is what closes the gap.
 
 `assets/yml/pal_gc/` is gitignored — regenerate locally. `assets/yml/config.yml`
 is hand-maintained and committed (ROM SHA1 → `pal_gc`, gbi `F3DEX2_OoT`,

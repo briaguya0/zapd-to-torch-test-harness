@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 """Convert ZAPD/Shipwright XML asset definitions to Torch YAML format.
 
-Reads XML asset definitions, converts them to Torch YAML, and adds VTX entries
-from a pre-computed VTX JSON file.
+Reads XML asset definitions, converts them to Torch YAML, and injects the
+supplemental asset metadata (VTX arrays, child DLists, limbs, collision, Set_
+alternate headers, MTX offsets, ...) from generate_supplemental.py.
 
 Usage:
-    python3 zapd_to_torch.py --xml-dir <dir> --dma-json <file> --out-dir <dir> [--vtx-json <file>] [--types TYPE1,TYPE2,...]
+    python3 zapd_to_torch.py --xml-dir <dir> --dma-json <file> --out-dir <dir> [--supplemental-json <file>] [--types TYPE1,TYPE2,...]
 
 Example:
     python3 tools/zapd_to_torch.py \
         --xml-dir shipwright/soh/assets/xml/GC_NMQ_PAL_F \
         --dma-json dma/pal_gc.json \
         --out-dir assets/yml/pal_gc \
-        --vtx-json vtx/pal_gc.json
+        --supplemental-json supplemental/pal_gc.json
 
     # Only convert specific types:
     python3 tools/zapd_to_torch.py \
         --xml-dir shipwright/soh/assets/xml/GC_NMQ_PAL_F \
         --dma-json dma/pal_gc.json \
         --out-dir assets/yml/pal_gc \
-        --vtx-json vtx/pal_gc.json \
+        --supplemental-json supplemental/pal_gc.json \
         --types Texture,Blob,DList
 """
 
@@ -629,69 +630,6 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
 
 # --- VTX discovery from reference O2R ---
 
-def add_vtx_to_yaml(yaml_path, vtx_entries):
-    """Append VTX entries to a YAML file."""
-    with open(yaml_path) as f:
-        content = f.read()
-
-    # Check which entries already exist
-    existing = set()
-    for line in content.split("\n"):
-        if line and not line.startswith(" ") and line.endswith(":") and line != ":config:":
-            existing.add(line[:-1])
-
-    new_entries = []
-    for asset_name, offset_hex, count in sorted(vtx_entries, key=lambda x: int(x[1], 16)):
-        if asset_name in existing:
-            continue
-        new_entries.append(
-            f"{asset_name}:\n"
-            f"  type: OOT:ARRAY\n"
-            f"  offset: {offset_hex}\n"
-            f"  symbol: {asset_name}\n"
-            f"  count: {count}\n"
-            f"  array_type: VTX\n"
-        )
-
-    if not new_entries:
-        return 0
-
-    # Ensure file ends with newline
-    if not content.endswith("\n"):
-        content += "\n"
-
-    with open(yaml_path, "w") as f:
-        f.write(content)
-        for entry in new_entries:
-            f.write("\n")
-            f.write(entry)
-
-    return len(new_entries)
-
-
-def add_vtx_from_json(vtx_json_path, yaml_dir):
-    """Add VTX entries to YAML files from a pre-computed VTX JSON file."""
-    with open(vtx_json_path) as f:
-        vtx_by_file = json.load(f)
-
-    total_added = 0
-    files_updated = 0
-
-    for file_key, entries in sorted(vtx_by_file.items()):
-        yaml_path = os.path.join(yaml_dir, f"{file_key}.yml")
-        if not os.path.exists(yaml_path):
-            continue
-
-        vtx_entries = [(e["name"], e["offset"], e["count"]) for e in entries]
-        added = add_vtx_to_yaml(yaml_path, vtx_entries)
-        if added > 0:
-            total_added += added
-            files_updated += 1
-
-    return total_added, files_updated
-
-
-
 def add_undeclared_to_yaml(yaml_path, entries):
     """Append undeclared asset entries to a YAML file."""
     with open(yaml_path) as f:
@@ -742,27 +680,6 @@ def add_undeclared_to_yaml(yaml_path, entries):
             f.write(entry)
 
     return len(new_entries)
-
-
-def add_undeclared_from_json(undeclared_json_path, yaml_dir):
-    """Add undeclared asset entries to YAML files from catalog_undeclared.py output."""
-    with open(undeclared_json_path) as f:
-        assets_by_file = json.load(f)
-
-    total_added = 0
-    files_updated = 0
-
-    for file_key, entries in sorted(assets_by_file.items()):
-        yaml_path = os.path.join(yaml_dir, f"{file_key}.yml")
-        if not os.path.exists(yaml_path):
-            continue
-
-        added = add_undeclared_to_yaml(yaml_path, entries)
-        if added > 0:
-            total_added += added
-            files_updated += 1
-
-    return total_added, files_updated
 
 
 def _read_yaml_config(yaml_path):
@@ -965,10 +882,7 @@ def main():
     parser.add_argument("--xml-dir", required=True, help="Path to XML directory (e.g. GC_NMQ_PAL_F)")
     parser.add_argument("--dma-json", required=True, help="Path to DMA table JSON")
     parser.add_argument("--out-dir", required=True, help="Output YAML directory")
-    parser.add_argument("--vtx-json", help="Path to VTX JSON file for vertex array backfill")
-    parser.add_argument("--undeclared-json", help="Path to undeclared assets JSON from catalog_undeclared.py")
-    parser.add_argument("--rom-assets-json", help="Path to ROM-extracted assets JSON from extract_rom_assets.py")
-    parser.add_argument("--supplemental-json", help="Path to supplemental JSON from generate_supplemental.py (replaces vtx/undeclared/rom-assets)")
+    parser.add_argument("--supplemental-json", help="Path to supplemental JSON from generate_supplemental.py")
     parser.add_argument("--types", help="Comma-separated list of XML types to convert (default: all)")
     args = parser.parse_args()
 
@@ -1005,28 +919,7 @@ def main():
 
     print(f"Wrote {total_files} YAML files with {total_assets} assets")
 
-    # Step 2: Add VTX entries from pre-computed JSON
-    if args.vtx_json:
-        vtx_added, vtx_files = add_vtx_from_json(args.vtx_json, args.out_dir)
-        print(f"Added {vtx_added} VTX entries to {vtx_files} YAML files")
-    else:
-        print("Skipping VTX backfill (no --vtx-json provided)")
-
-    # Step 3: Add ROM-extracted assets (MTX, Set_ headers)
-    if args.rom_assets_json:
-        ra_added, ra_files = add_undeclared_from_json(args.rom_assets_json, args.out_dir)
-        print(f"Added {ra_added} ROM-extracted assets to {ra_files} YAML files")
-    else:
-        print("Skipping ROM asset injection (no --rom-assets-json provided)")
-
-    # Step 4: Add undeclared assets from catalog_undeclared.py output
-    if args.undeclared_json:
-        ud_added, ud_files = add_undeclared_from_json(args.undeclared_json, args.out_dir)
-        print(f"Added {ud_added} undeclared assets to {ud_files} YAML files")
-    else:
-        print("Skipping undeclared asset injection (no --undeclared-json provided)")
-
-    # Step 5: Add supplemental assets (consolidated JSON with YAML-path keys)
+    # Step 2: Add supplemental assets (consolidated JSON with YAML-path keys)
     if args.supplemental_json:
         supp_added, supp_files = add_supplemental_from_json(args.supplemental_json, args.out_dir)
         print(f"Added {supp_added} supplemental assets to {supp_files} YAML files")
