@@ -1,5 +1,6 @@
-# Active = verified byte-for-byte vs manifest. Commented-out = not yet passing;
-# failure summary noted above each. Uncomment one at a time as it's fixed.
+# Active = verified byte-for-byte vs manifest (0 failed, 0 missing, 0 extra).
+# Commented-out = not yet passing; failure summary above each. Uncomment as fixed.
+# Last full batch: after supplemental texture extraction (branch supplemental-textures).
 
 0227d7c0074f2d0ac935631990da8ec5914597b4:
   name: Legend of Zelda, The - Ocarina of Time (Europe) (GameCube)
@@ -36,7 +37,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 
 # ---- not yet passing ----
 
-# FAILED: 39058 passed, 3 failed, 5 not generated - gSunDL + sun textures (gameplay_keepTex_051A70/051C70/052270/052470), object_sst limb+tex, jpn_message_data_static
+# FAILED: 39065 passed, 1 failed - jpn_message_data_static (Japanese text serialization)
 # b82710ba2bd3b4c6ee8aa1a7e9acf787dfc72e9b:
 #   name: Legend of Zelda, The - Ocarina of Time (USA) (GameCube)
 #   path: ntsc_u_gc
@@ -48,7 +49,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 39056 passed, 3 failed, 5 not generated - same cluster (gSunDL, object_sst, jpn_message_data_static)
+# FAILED: 39063 passed, 1 failed - jpn_message_data_static
 # 0769c84615422d60f16925cd859593cdfa597f84:
 #   name: Zelda no Densetsu - Toki no Ocarina GC (Japan) (GameCube)
 #   path: ntsc_j_gc
@@ -60,7 +61,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 39058 passed, 3 failed, 5 not generated - same cluster (gSunDL, object_sst, jpn_message_data_static)
+# FAILED: 39065 passed, 1 failed - jpn_message_data_static
 # 2ce2d1a9f0534c9cd9fa04ea5317b80da21e5e73:
 #   name: Zelda no Densetsu - Toki no Ocarina (Japan) (GameCube, Zelda Collection)
 #   path: ntsc_j_gc_collection
@@ -72,7 +73,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 33754 passed, 3 failed, 5272 not generated - systematic MQ gap
+# FAILED: 33761 passed, 1 failed, 5267 not generated - MQ asset discovery gap (not textures)
 # 8b5d13aac69bfbf989861cfdc50b1d840945fc1d:
 #   name: Legend of Zelda, The - Ocarina of Time - Master Quest (USA) (GameCube)
 #   path: ntsc_u_mq
@@ -84,7 +85,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 33751 passed, 3 failed, 5272 not generated - systematic MQ gap
+# FAILED: 33758 passed, 1 failed, 5267 not generated - MQ asset discovery gap
 # dd14e143c4275861fe93ea79d0c02e36ae8c6c2f:
 #   name: Zelda no Densetsu - Toki no Ocarina GC Ura (Japan) (GameCube)
 #   path: ntsc_j_mq
@@ -96,7 +97,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 30084 passed, 1 failed, 5267 not generated - systematic MQ gap
+# FAILED: 30084 passed, 1 failed, 5267 not generated - MQ asset discovery gap
 # f46239439f59a2a594ef83cf68ef65043b1bffe2:
 #   name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (GameCube)
 #   path: pal_mq
@@ -108,7 +109,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: Torch SIGSEGV (exit 139, core dumped) right after the startup banner - no o2r (debug ROM, version 15)
+# FAILED: Torch SIGSEGV (exit 139) after startup banner - no o2r (debug ROM)
 # cee6bc3c2a634b41728f2af8da54d9bf8cc14099:
 #   name: Legend of Zelda, The - Ocarina of Time (Europe) (Debug) (GameCube)
 #   path: pal_gc_dbg
@@ -120,7 +121,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: Torch SIGSEGV (exit 139, core dumped) - no o2r (MQ debug ROM)
+# FAILED: Torch SIGSEGV (exit 139) - no o2r (MQ debug ROM)
 # 079b855b943d6ad8bd1eb026c0ed169ecbdac7da:
 #   name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (Debug) (GameCube)
 #   path: pal_mq_dbg
@@ -156,7 +157,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 38315 passed, 70 failed, 5 not generated
+# FAILED: 38322 passed, 68 failed - N64 hash mismatches (not textures; missing cleared)
 # c892bbda3993e66bd0d56a10ecd30b1ee612210f:
 #   name: Zelda no Densetsu - Toki no Ocarina (Japan)
 #   path: ntsc_1-0
@@ -168,7 +169,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 38315 passed, 70 failed, 5 not generated (USA 1.0, shares ntsc_1-0)
+# FAILED: 38322 passed, 68 failed (USA 1.0, shares ntsc_1-0)
 # ad69c91157f6705e8ab06c79fe08aad47bb57ba7:
 #   name: Legend of Zelda, The - Ocarina of Time (USA)
 #   path: ntsc_1-0
@@ -180,7 +181,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 38464 passed, 57 failed, 5 not generated
+# FAILED: 38471 passed, 55 failed - N64 hash mismatches
 # dbfc81f655187dc6fefd93fa6798face770d579d:
 #   name: Zelda no Densetsu - Toki no Ocarina (Japan) (Rev 1)
 #   path: ntsc_1-1
@@ -192,7 +193,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 38464 passed, 57 failed, 5 not generated (USA 1.1, shares ntsc_1-1)
+# FAILED: 38471 passed, 55 failed (USA 1.1, shares ntsc_1-1)
 # d3ecb253776cd847a5aa63d859d8c89a2f37b364:
 #   name: Legend of Zelda, The - Ocarina of Time (USA) (Rev 1)
 #   path: ntsc_1-1
@@ -204,7 +205,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: Torch SIGSEGV (exit 139, core dumped) - no o2r (ntsc_1-0/1-1 do NOT crash, so 1.2-specific)
+# FAILED: Torch SIGSEGV (exit 139) - no o2r (1.2-specific; 1.0/1.1 don't crash)
 # fa5f5942b27480d60243c2d52c0e93e26b9e6b86:
 #   name: Zelda no Densetsu - Toki no Ocarina (Japan) (Rev 2)
 #   path: ntsc_1-2

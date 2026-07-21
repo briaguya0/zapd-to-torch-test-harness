@@ -657,6 +657,12 @@ def add_undeclared_to_yaml(yaml_path, entries):
             lines += f'  array_type: {entry["array_type"]}\n'
         if "limb_type" in entry:
             lines += f'  limb_type: {entry["limb_type"]}\n'
+        if "format" in entry:
+            lines += f'  format: {entry["format"]}\n'
+        if "width" in entry:
+            lines += f'  width: {entry["width"]}\n'
+        if "height" in entry:
+            lines += f'  height: {entry["height"]}\n'
         if "size" in entry:
             lines += f'  size: {entry["size"]}\n'
         if "base_name" in entry:

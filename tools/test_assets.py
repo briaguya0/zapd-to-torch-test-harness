@@ -372,24 +372,43 @@ def main():
             passed, failed, missing_gen, missing_ref, fail_list, lines = \
                 compare(assets, ref_manifest, gen_hashes, args.failures_only)
 
+            # Detect extra files: present in the generated O2R but absent from the
+            # reference manifest. Scoped to the same path filters; skipped for
+            # --type / --from-file where the generated set can't be scoped to match.
+            extra_list = []
+            if not (args.type or args.from_file):
+                with zipfile.ZipFile(o2r_file, "r") as zf:
+                    gen_names = set(zf.namelist())
+                extras = gen_names - set(ref_manifest)
+                if args.category:
+                    extras = {a for a in extras if parse_asset_path(a)[0] == args.category}
+                if args.file:
+                    extras = {a for a in extras if parse_asset_path(a)[1] == args.file}
+                extra_list = sorted(extras)
+                for a in extra_list:
+                    lines.append(f"EXTRA {a} (in generated O2R, not in reference)")
+
             print(f"Done. {elapsed(t0)}")
             print()
 
             for line in lines:
                 print(line)
 
+            not_in_ref = missing_ref + len(extra_list)
             print()
             print("=== Summary ===")
-            print(f"{passed} passed, {failed} failed, {missing_gen} not generated, {missing_ref} not in reference")
-            print(f"Total: {passed + failed + missing_gen + missing_ref} assets")
+            print(f"{passed} passed, {failed} failed, {missing_gen} not generated, {not_in_ref} not in reference")
+            print(f"Total: {passed + failed + missing_gen + not_in_ref} assets")
 
-            if fail_list:
+            if fail_list or extra_list:
                 print()
                 print("Failed assets:")
                 for f_asset in fail_list:
                     print(f"  {f_asset}")
+                for a in extra_list:
+                    print(f"  EXTRA {a}")
 
-            sys.exit(1 if (failed + missing_gen + missing_ref) > 0 else 0)
+            sys.exit(1 if (failed + missing_gen + not_in_ref) > 0 else 0)
 
         finally:
             shutil.rmtree(work_dir, ignore_errors=True)

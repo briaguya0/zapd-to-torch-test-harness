@@ -32,6 +32,13 @@ RESOURCE_TYPES = {
     0x4F434F4C: "OOT:COLLISION",
     0x4F524F4D: "OOT:ROOM",
     0x4F565458: "VTX",
+    0x4F544558: "TEXTURE",  # OTEX
+}
+
+# ZAPD TextureType enum -> Torch/YAML format string
+TEX_FORMAT_MAP = {
+    1: "RGBA32", 2: "RGBA16", 3: "CI4", 4: "CI8",
+    5: "I4", 6: "I8", 7: "IA4", 8: "IA8", 9: "IA16",
 }
 
 LIMB_TYPE_MAP = {1: "Standard", 2: "LOD", 3: "Skin", 4: "Curve", 5: "Legacy"}
@@ -210,6 +217,18 @@ def extract_from_o2r(zf):
             limb_type_str = LIMB_TYPE_MAP.get(limb_type_val)
             if limb_type_str:
                 entry["limb_type"] = limb_type_str
+
+        elif type_name == "TEXTURE" and len(data) >= 76:
+            # OTEX body: TextureType(64), Width(68), Height(72), RawDataSize(76)
+            # Only offset-named textures reach here (semantic-named ones are
+            # skipped above for lacking an offset in their name) — i.e. exactly
+            # the textures ZAPD auto-discovered from DLists that aren't in the XML.
+            fmt = TEX_FORMAT_MAP.get(struct.unpack_from("<I", data, 64)[0])
+            if fmt is None:
+                continue
+            entry["format"] = fmt
+            entry["width"] = struct.unpack_from("<I", data, 68)[0]
+            entry["height"] = struct.unpack_from("<I", data, 72)[0]
 
         if file_key not in assets:
             assets[file_key] = []
@@ -535,20 +554,6 @@ def main():
         for e in entries:
             if e["name"] not in existing_names:
                 merged[file_key].append(e)
-
-    # gSunDL VTX: embedded vertex data within gSunDL's ROM range.
-    # OTRExporter handles this via GetDeclarationRanged (byte offset into texture).
-    # Torch needs it declared to avoid AddAsset. Found by walking gSunDL's G_VTX command.
-    gk = "objects/gameplay_keep"
-    if gk in merged:
-        if not any(e.get("name") == "gSunDLVtx_04D348" for e in merged[gk]):
-            merged[gk].append({
-                "name": "gSunDLVtx_04D348",
-                "type": "VTX",
-                "offset": "0x4D348",
-                "symbol": "gSunDLVtx_04D348",
-                "count": 12,
-            })
 
     # Keep unresolved BLOBs (with _skel_name/_limb_count) — zapd_to_torch resolves them
     # Filter out entries missing both offset AND resolution fields
