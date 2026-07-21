@@ -440,11 +440,11 @@ def xml_has_asset_types(xml_path, types=None):
 
 
 def get_scene_prefix(xml_rel_path):
-    """Determine scene output prefix (scenes/shared or scenes/nonmq).
+    """Determine scene output prefix (scenes/shared, scenes/nonmq or scenes/mq).
 
     Matches OTRExporter's GetPrefix() logic in DisplayListExporter.cpp:1054-1088.
-    For non-MQ ROMs, dungeons with MQ variants go to scenes/nonmq/,
-    everything else goes to scenes/shared/.
+    Dungeons with MQ variants go to scenes/mq/ on MQ ROMs and scenes/nonmq/ on
+    non-MQ ROMs; everything else goes to scenes/shared/.
     """
     xml_basename = os.path.basename(xml_rel_path)  # e.g. "bdan.xml"
 
@@ -455,7 +455,7 @@ def get_scene_prefix(xml_rel_path):
     )
 
     if "dungeons/" in xml_rel_path and mq_dungeons.match(xml_basename):
-        return "scenes/nonmq"
+        return "scenes/nonmq" if _is_non_mq else "scenes/mq"
     return "scenes/shared"
 
 
