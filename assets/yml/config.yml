@@ -1,6 +1,6 @@
 # Active = verified byte-for-byte vs manifest (0 failed, 0 missing, 0 extra).
 # Commented-out = not yet passing; failure summary above each. Uncomment as fixed.
-# Last batch: after scenes/mq prefix fix (MQ dungeon scenes now generate).
+# Last batch: after VTX zero_flag fix (torch oot-assets-torchonly 89e2954).
 
 0227d7c0074f2d0ac935631990da8ec5914597b4:
   name: Legend of Zelda, The - Ocarina of Time (Europe) (GameCube)
@@ -92,18 +92,16 @@ dd14e143c4275861fe93ea79d0c02e36ae8c6c2f:
     output:
       binary: oot.o2r
 
-# FAILED: 35351 passed, 1 failed - MQ scene gap closed; remaining is
-#   code/z_fbdemo_circle/codeVtx_0FAFA8 (ref-zeros vertex mismatch)
-# f46239439f59a2a594ef83cf68ef65043b1bffe2:
-#   name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (GameCube)
-#   path: pal_mq
-#   config:
-#     gbi: F3DEX2_OoT
-#     sort: OFFSET
-#     logging: CRITICAL
-#     primary_virtual_segment: 0x80
-#     output:
-#       binary: oot.o2r
+f46239439f59a2a594ef83cf68ef65043b1bffe2:
+  name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (GameCube)
+  path: pal_mq
+  config:
+    gbi: F3DEX2_OoT
+    sort: OFFSET
+    logging: CRITICAL
+    primary_virtual_segment: 0x80
+    output:
+      binary: oot.o2r
 
 cee6bc3c2a634b41728f2af8da54d9bf8cc14099:
   name: Legend of Zelda, The - Ocarina of Time (Europe) (Debug) (GameCube)
