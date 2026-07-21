@@ -4,5 +4,5 @@
 	branch = oot-assets-torchonly
 [submodule "shipwright"]
 	path = shipwright
-	url = https://github.com/briaguya0/Shipwright.git
-	branch = fix-skinvtxcnt-ub
+	url = https://github.com/HarbourMasters/Shipwright.git
+	branch = develop
