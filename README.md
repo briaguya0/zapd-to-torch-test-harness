@@ -12,7 +12,7 @@ git clone --recurse-submodules https://github.com/briaguya0/zapd-to-torch-test-h
 
 ## Status
 
-Latest full-matrix run (`torch` at `oot-assets-torchonly` `e7d8975`). "Clean" =
+Latest full-matrix run (`torch` at `oot-assets-torchonly` `89e2954`). "Clean" =
 byte-for-byte identical to the reference O2R (0 failed, 0 not-generated, 0 extra).
 
 | Version | ROM(s) | Assets | Status |
@@ -27,19 +27,19 @@ byte-for-byte identical to the reference O2R (0 failed, 0 not-generated, 0 extra
 | ntsc_1-1 | JP + USA N64 1.1 | 38526 | ✅ clean |
 | ntsc_u_mq | USA GC Master Quest | 39029 | ✅ clean |
 | ntsc_j_mq | JP GC Master Quest | 39026 | ✅ clean |
-| pal_mq | PAL GC Master Quest | 35351 | ⚠️ 1 failed (code/z_fbdemo_circle vertex) |
+| pal_mq | PAL GC Master Quest | 35352 | ✅ clean |
 | pal_gc_dbg | PAL GC (Debug) | 35646 | ✅ clean |
 | pal_mq_dbg | PAL GC MQ (Debug, 3 dumps) | 35610 | ⚠️ 2 object DL mismatches |
 | ntsc_1-2 | JP + USA N64 1.2 | — | ❌ Torch SIGSEGV (no O2R) |
 
-**11 of 14 targets clean.** Remaining: a `code/z_fbdemo_circle` vertex mismatch on
-pal_mq, two object DL mismatches on pal_mq_dbg, and a Torch crash on the 1.2 ROMs.
+**12 of 14 targets clean.** Remaining: two object DL mismatches on pal_mq_dbg
+(`object_fish`/`object_zo` ripple models), and a Torch crash on the 1.2 ROMs.
 
 ## Submodules
 
 | Path | Repo | Pinned commit | Notes |
 |------|------|---------------|-------|
-| `torch/` | briaguya0/Torch `oot-assets-torchonly` | `e7d8975` | PR #219 head — OoT factories, no scaffolding |
+| `torch/` | briaguya0/Torch `oot-assets-torchonly` | `89e2954` | PR #219 head — OoT factories, no scaffolding |
 | `shipwright/` | HarbourMasters/Shipwright `develop` | `95d8f7e` | upstream SoH (ZAPD bump #6952); builds the reference O2R |
 
 ## Layout
