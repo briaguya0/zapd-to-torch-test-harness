@@ -10,11 +10,36 @@ reproducible independent of the Torch repo itself.
 git clone --recurse-submodules https://github.com/briaguya0/zapd-to-torch-test-harness.git
 ```
 
+## Status
+
+Latest full-matrix run (`torch` at `oot-assets-torchonly` `2ddbd93`). "Clean" =
+byte-for-byte identical to the reference O2R (0 failed, 0 not-generated, 0 extra).
+
+| Version | ROM(s) | Assets | Status |
+|---------|--------|-------:|--------|
+| pal_gc | PAL GC | 35386 | ✅ clean |
+| ntsc_u_gc | USA GC | 39066 | ✅ clean |
+| ntsc_j_gc | JP GC | 39064 | ✅ clean |
+| ntsc_j_gc_collection | JP GC (Zelda Collection) | 39066 | ✅ clean |
+| pal_1-0 | PAL N64 1.0 | 35362 | ✅ clean |
+| pal_1-1 | PAL N64 1.1 | 35362 | ✅ clean |
+| ntsc_1-0 | JP + USA N64 1.0 | 38390 | ✅ clean |
+| ntsc_1-1 | JP + USA N64 1.1 | 38526 | ✅ clean |
+| ntsc_u_mq | USA GC Master Quest | 33762 | ⚠️ 5267 not generated (MQ discovery gap) |
+| ntsc_j_mq | JP GC Master Quest | 33759 | ⚠️ 5267 not generated (MQ discovery gap) |
+| pal_mq | PAL GC Master Quest | 30084 | ⚠️ 5267 not generated + 1 failed |
+| pal_gc_dbg | PAL GC (Debug) | — | ❌ Torch SIGSEGV (no O2R) |
+| pal_mq_dbg | PAL GC MQ (Debug, 3 dumps) | — | ❌ Torch SIGSEGV (no O2R) |
+| ntsc_1-2 | JP + USA N64 1.2 | — | ❌ Torch SIGSEGV (no O2R) |
+
+**8 of 14 targets clean.** Remaining clusters: MQ asset-discovery gap (~5267
+assets), and Torch crashes on the debug + 1.2 ROMs.
+
 ## Submodules
 
 | Path | Repo | Pinned commit | Notes |
 |------|------|---------------|-------|
-| `torch/` | briaguya0/Torch `oot-assets-torchonly` | `de68e4b` | PR #219 head — OoT factories, no scaffolding |
+| `torch/` | briaguya0/Torch `oot-assets-torchonly` | `2ddbd93` | PR #219 head — OoT factories, no scaffolding |
 | `shipwright/` | HarbourMasters/Shipwright `develop` | `95d8f7e` | upstream SoH (ZAPD bump #6952); builds the reference O2R |
 
 ## Layout
