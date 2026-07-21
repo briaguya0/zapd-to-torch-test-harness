@@ -25,15 +25,15 @@ byte-for-byte identical to the reference O2R (0 failed, 0 not-generated, 0 extra
 | pal_1-1 | PAL N64 1.1 | 35362 | ✅ clean |
 | ntsc_1-0 | JP + USA N64 1.0 | 38390 | ✅ clean |
 | ntsc_1-1 | JP + USA N64 1.1 | 38526 | ✅ clean |
-| ntsc_u_mq | USA GC Master Quest | 33762 | ⚠️ 5267 not generated (MQ discovery gap) |
-| ntsc_j_mq | JP GC Master Quest | 33759 | ⚠️ 5267 not generated (MQ discovery gap) |
-| pal_mq | PAL GC Master Quest | 30084 | ⚠️ 5267 not generated + 1 failed |
+| ntsc_u_mq | USA GC Master Quest | 39029 | ✅ clean |
+| ntsc_j_mq | JP GC Master Quest | 39026 | ✅ clean |
+| pal_mq | PAL GC Master Quest | 35351 | ⚠️ 1 failed (code/z_fbdemo_circle vertex) |
 | pal_gc_dbg | PAL GC (Debug) | 35646 | ✅ clean |
-| pal_mq_dbg | PAL GC MQ (Debug, 3 dumps) | 30343 | ⚠️ 5267 not generated + 2 object DL mismatches |
+| pal_mq_dbg | PAL GC MQ (Debug, 3 dumps) | 35610 | ⚠️ 2 object DL mismatches |
 | ntsc_1-2 | JP + USA N64 1.2 | — | ❌ Torch SIGSEGV (no O2R) |
 
-**9 of 14 targets clean.** Remaining: MQ asset-discovery gap (~5267 assets), two
-object DL mismatches on pal_mq_dbg, and a Torch crash on the 1.2 ROMs.
+**11 of 14 targets clean.** Remaining: a `code/z_fbdemo_circle` vertex mismatch on
+pal_mq, two object DL mismatches on pal_mq_dbg, and a Torch crash on the 1.2 ROMs.
 
 ## Submodules
 
