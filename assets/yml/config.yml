@@ -1,6 +1,6 @@
 # Active = verified byte-for-byte vs manifest (0 failed, 0 missing, 0 extra).
 # Commented-out = not yet passing; failure summary above each. Uncomment as fixed.
-# Last batch: after shared-DL alias dedup fix (zapd_to_torch.py (offset,type) skip).
+# Last batch: after G_MOVEMEM-zeroing fix (torch oot-assets-torchonly 2ddbd93).
 
 0227d7c0074f2d0ac935631990da8ec5914597b4:
   name: Legend of Zelda, The - Ocarina of Time (Europe) (GameCube)
@@ -154,30 +154,28 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 38389 passed, 1 failed (was 67; shared-DL fix cleared 66) -
-#   remaining is textures/nintendo_rogo_static/gNintendo64LogoDL, a separate issue
-# c892bbda3993e66bd0d56a10ecd30b1ee612210f:
-#   name: Zelda no Densetsu - Toki no Ocarina (Japan)
-#   path: ntsc_1-0
-#   config:
-#     gbi: F3DEX2_OoT
-#     sort: OFFSET
-#     logging: CRITICAL
-#     primary_virtual_segment: 0x80
-#     output:
-#       binary: oot.o2r
+c892bbda3993e66bd0d56a10ecd30b1ee612210f:
+  name: Zelda no Densetsu - Toki no Ocarina (Japan)
+  path: ntsc_1-0
+  config:
+    gbi: F3DEX2_OoT
+    sort: OFFSET
+    logging: CRITICAL
+    primary_virtual_segment: 0x80
+    output:
+      binary: oot.o2r
 
-# FAILED: 38389 passed, 1 failed (USA 1.0, shares ntsc_1-0)
-# ad69c91157f6705e8ab06c79fe08aad47bb57ba7:
-#   name: Legend of Zelda, The - Ocarina of Time (USA)
-#   path: ntsc_1-0
-#   config:
-#     gbi: F3DEX2_OoT
-#     sort: OFFSET
-#     logging: CRITICAL
-#     primary_virtual_segment: 0x80
-#     output:
-#       binary: oot.o2r
+# USA 1.0, shares ntsc_1-0
+ad69c91157f6705e8ab06c79fe08aad47bb57ba7:
+  name: Legend of Zelda, The - Ocarina of Time (USA)
+  path: ntsc_1-0
+  config:
+    gbi: F3DEX2_OoT
+    sort: OFFSET
+    logging: CRITICAL
+    primary_virtual_segment: 0x80
+    output:
+      binary: oot.o2r
 
 dbfc81f655187dc6fefd93fa6798face770d579d:
   name: Zelda no Densetsu - Toki no Ocarina (Japan) (Rev 1)
