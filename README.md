@@ -139,8 +139,25 @@ python3 tools/zapd_to_torch.py \
     --supplemental-json supplemental/pal_gc.json
 ```
 
-Without the supplemental injection the XML declares only ~18.5k of the 35,386
-assets, leaving ~12k "not generated" — the supplemental data is what closes the gap.
+Expected output — **two** lines (the second only prints when `--supplemental-json`
+is passed):
+
+```
+Wrote 1065 YAML files with 18554 assets
+Added 13017 supplemental assets to 1236 YAML files
+```
+
+→ **1450** YAML files (`find assets/yml/pal_gc -name '*.yml' | wc -l`).
+
+**Don't expect 35,386 here.** These counts are what the *YAML declares*
+(18554 + 13017 = **31571**), not the final asset count. Torch discovers the
+remaining ~3,800 during extraction (DLists → sub-DLists/textures, scenes → rooms,
+skeletons → limbs, …), so the O2R produced in step 3 ends up with the full 35,386.
+
+Common gotcha: `18554` is just the **first** line — if you stop reading there it
+looks like assets are missing. Without `--supplemental-json` at all, only that
+first line prints (1065 files, ~18.5k assets) and step 3 leaves ~12k "not
+generated"; the supplemental injection is what closes the gap.
 
 `assets/yml/pal_gc/` is gitignored — regenerate locally. `assets/yml/config.yml`
 is hand-maintained and committed (ROM SHA1 → `pal_gc`, gbi `F3DEX2_OoT`,
