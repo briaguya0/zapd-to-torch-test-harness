@@ -237,6 +237,8 @@ def convert_generic(elem):
         entry["code_offset"] = hex_val(elem.get("CodeOffset"))
     if elem.get("LangOffset"):
         entry["lang_offset"] = hex_val(elem.get("LangOffset"))
+    if elem.get("Language"):
+        entry["language"] = elem.get("Language")
     return entry
 
 

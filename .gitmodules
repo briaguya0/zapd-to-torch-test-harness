@@ -1,7 +1,7 @@
 [submodule "torch"]
 	path = torch
 	url = https://github.com/briaguya0/Torch.git
-	branch = oot-assets-torchonly
+	branch = oot-jpn-message-text
 [submodule "shipwright"]
 	path = shipwright
 	url = https://github.com/HarbourMasters/Shipwright.git
