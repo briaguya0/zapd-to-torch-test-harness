@@ -15,7 +15,7 @@ git clone --recurse-submodules https://github.com/briaguya0/zapd-to-torch-test-h
 | Path | Repo | Pinned commit | Notes |
 |------|------|---------------|-------|
 | `torch/` | briaguya0/Torch `oot-assets-torchonly` | `de68e4b` | PR #219 head — OoT factories, no scaffolding |
-| `shipwright/` | briaguya0/Shipwright `fix-skinvtxcnt-ub` | `b48e5f7` | dev + [ZAPDTR PR #37](https://github.com/HarbourMasters/ZAPDTR/pull/37); builds the reference O2R |
+| `shipwright/` | HarbourMasters/Shipwright `develop` | `95d8f7e` | upstream SoH (ZAPD bump #6952); builds the reference O2R |
 
 ## Layout
 
@@ -57,7 +57,7 @@ cmake --build build -j
 The loop, at a glance:
 
 ```
-shipwright @ b48e5f7 + PAL GC ROM ──OTRExporter──▶ reference.o2r ──manifest.sh──▶ manifests/pal_gc.json
+shipwright @ 95d8f7e + PAL GC ROM ──OTRExporter──▶ reference.o2r ──manifest.sh──▶ manifests/pal_gc.json
                                                                                         │
 shipwright XML ──zapd_to_torch.py──▶ YAMLs ──torch o2r──▶ oot.o2r ──test_assets.py/check.sh──┘ (compare)
 ```
@@ -67,7 +67,7 @@ shipwright XML ──zapd_to_torch.py──▶ YAMLs ──torch o2r──▶ oo
 The "correct" output is a reference O2R produced by Shipwright/OTRExporter. Rather
 than require everyone to build Shipwright, **this repo already ships the sha256
 manifests** in `manifests/`, generated from the exact Shipwright version pinned as
-the `shipwright/` submodule (`b48e5f7`). `manifests/pal_gc.json` has 35,386 entries
+the `shipwright/` submodule (`95d8f7e`). `manifests/pal_gc.json` has 35,386 entries
 — one sha256 per asset in the reference PAL GC O2R.
 
 That means you can start comparing Torch output immediately; you do **not** need a
@@ -82,14 +82,15 @@ regenerate the manifest and confirm it matches what's checked in:
 diff <(jq -S . manifests/pal_gc.json) <(jq -S . /tmp/regen.json) && echo MATCH
 ```
 
-> ✅ **Verified:** regenerating from the CI reference O2R of `b48e5f7` reproduces
+> ✅ **Verified:** regenerating from the CI reference O2R of `95d8f7e` reproduces
 > `manifests/pal_gc.json` exactly (35,386 entries, all hashes identical). The
 > reference build is reproducible.
 
-> Notes: the reference is the **fork branch**, not upstream SoH — rebuilding
-> against current SoH dev would drift the hashes. ZIP archives aren't
-> byte-deterministic, so comparison is always file-by-file within the extracted
-> archive, never a hash of the whole `.o2r`.
+> Notes: the reference is pinned to a **specific** SoH commit (`95d8f7e`) —
+> rebuilding against a newer SoH dev would drift the hashes, so bump the submodule
+> and regenerate the manifests together. ZIP archives aren't byte-deterministic,
+> so comparison is always file-by-file within the extracted archive, never a hash
+> of the whole `.o2r`.
 
 - **ROM:** Legend of Zelda, The - Ocarina of Time (Europe) (GameCube), PAL GC,
   SHA1 `0227D7C0074F2D0AC935631990DA8EC5914597B4`, placed at `roms/pal_gc_0227d7.z64`.
@@ -168,11 +169,12 @@ is hand-maintained and committed (ROM SHA1 → `pal_gc`, gbi `F3DEX2_OoT`,
 Build Torch to `torch/build/torch`, then the core invocation (from `test_assets.py`):
 
 ```sh
-torch/build/torch o2r -s <yml-dir> -d <out-dir> -u 9.2.0 roms/pal_gc_0227d7.z64
+torch/build/torch o2r -s <yml-dir> -d <out-dir> -u 9.2.3 roms/pal_gc_0227d7.z64
 # → <out-dir>/oot.o2r
 ```
 
-`-u 9.2.0` is the portVersion; `verify.sh` omits it for subset runs.
+`-u 9.2.3` is the portVersion (SoH `95d8f7e` stamps 9.2.3); `verify.sh` omits it
+for subset runs.
 
 Three ways to run + compare, by scope:
 
@@ -186,5 +188,5 @@ Three ways to run + compare, by scope:
 
 > ✅ **Current result (PAL GC):** `35386 passed, 0 failed, 0 not generated, 0 not
 > in reference` — Torch reproduces the OoT PAL GC O2R byte-for-byte against the
-> `b48e5f7` reference, given the `-DPORT_VERSION_ENDIANNESS=ON` build and the
+> `95d8f7e` reference, given the `-DPORT_VERSION_ENDIANNESS=ON` build and the
 > supplemental-injected YAMLs.
