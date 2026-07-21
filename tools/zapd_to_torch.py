@@ -637,15 +637,36 @@ def add_undeclared_to_yaml(yaml_path, entries):
     with open(yaml_path) as f:
         content = f.read()
 
-    # Check which entries already exist
+    # Check which entries already exist (by name) and which (offset, type)
+    # slots are already claimed by an XML-declared asset. A supplemental asset
+    # that lands on an offset already declared by the XML under a different name
+    # is an alias (e.g. the room-relative name of a scene-declared shared DList);
+    # emitting it as its own declaration would make Torch self-hash it under the
+    # wrong name. Skip it and let Torch's mesh writer regenerate it as an alias.
     existing = set()
+    existing_slots = set()
+    cur_type = None
+    cur_offset = None
     for line in content.split("\n"):
         if line and not line.startswith(" ") and line.endswith(":") and line != ":config:":
             existing.add(line[:-1])
+            cur_type = None
+            cur_offset = None
+        elif line.strip().startswith("type:"):
+            cur_type = line.split(":", 1)[1].strip()
+        elif line.strip().startswith("offset:"):
+            cur_offset = line.split(":", 1)[1].strip()
+            if cur_type is not None:
+                try:
+                    existing_slots.add((int(cur_offset, 16), cur_type))
+                except ValueError:
+                    pass
 
     new_entries = []
     for entry in sorted(entries, key=lambda x: int(x["offset"], 16)):
         if entry["name"] in existing:
+            continue
+        if (int(entry["offset"], 16), entry["type"]) in existing_slots:
             continue
 
         lines = f'{entry["name"]}:\n'
