@@ -1,6 +1,6 @@
 # Active = verified byte-for-byte vs manifest (0 failed, 0 missing, 0 extra).
 # Commented-out = not yet passing; failure summary above each. Uncomment as fixed.
-# Last batch: after debug-ROM crash guards (torch oot-assets-torchonly 7b7c50d).
+# Last batch: after syotes_room_0 empty-room fix (torch oot-assets-torchonly e7d8975).
 
 0227d7c0074f2d0ac935631990da8ec5914597b4:
   name: Legend of Zelda, The - Ocarina of Time (Europe) (GameCube)
@@ -106,21 +106,19 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# FAILED: 35645 passed, 1 failed, 8 not in ref - now completes (was SIGSEGV);
-#   remaining diffs are the syotes debug stub scene (Torch over-parses it)
-# cee6bc3c2a634b41728f2af8da54d9bf8cc14099:
-#   name: Legend of Zelda, The - Ocarina of Time (Europe) (Debug) (GameCube)
-#   path: pal_gc_dbg
-#   config:
-#     gbi: F3DEX2_OoT
-#     sort: OFFSET
-#     logging: CRITICAL
-#     primary_virtual_segment: 0x80
-#     output:
-#       binary: oot.o2r
+cee6bc3c2a634b41728f2af8da54d9bf8cc14099:
+  name: Legend of Zelda, The - Ocarina of Time (Europe) (Debug) (GameCube)
+  path: pal_gc_dbg
+  config:
+    gbi: F3DEX2_OoT
+    sort: OFFSET
+    logging: CRITICAL
+    primary_virtual_segment: 0x80
+    output:
+      binary: oot.o2r
 
-# FAILED: 30342 passed, 3 failed, 5267 not generated, 8 not in ref - now
-#   completes (was SIGSEGV); MQ discovery gap + syotes debug stub scene
+# FAILED: 30343 passed, 2 failed, 5267 not generated - MQ discovery gap +
+#   2 object DL mismatches (object_fish, object_zo ripple models)
 # 079b855b943d6ad8bd1eb026c0ed169ecbdac7da:
 #   name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (Debug) (GameCube)
 #   path: pal_mq_dbg
@@ -132,7 +130,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# now completes (was SIGSEGV); MQ discovery gap + syotes debug stub (dump 2)
+# MQ discovery gap + 2 object DL mismatches (dump 2)
 # 50bebedad9e0f10746a52b07239e47fa6c284d03:
 #   name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (Debug) (GameCube)
 #   path: pal_mq_dbg
@@ -144,7 +142,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
 #     output:
 #       binary: oot.o2r
 
-# now completes (was SIGSEGV); MQ discovery gap + syotes debug stub (dump 3)
+# MQ discovery gap + 2 object DL mismatches (dump 3)
 # cfecfdc58d650e71a200c81f033de4e6d617a9f6:
 #   name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (Debug) (GameCube)
 #   path: pal_mq_dbg
