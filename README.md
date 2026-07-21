@@ -12,7 +12,7 @@ git clone --recurse-submodules https://github.com/briaguya0/zapd-to-torch-test-h
 
 ## Status
 
-Latest full-matrix run (`torch` at `oot-assets-torchonly` `2ddbd93`). "Clean" =
+Latest full-matrix run (`torch` at `oot-assets-torchonly` `7b7c50d`). "Clean" =
 byte-for-byte identical to the reference O2R (0 failed, 0 not-generated, 0 extra).
 
 | Version | ROM(s) | Assets | Status |
@@ -28,18 +28,18 @@ byte-for-byte identical to the reference O2R (0 failed, 0 not-generated, 0 extra
 | ntsc_u_mq | USA GC Master Quest | 33762 | ⚠️ 5267 not generated (MQ discovery gap) |
 | ntsc_j_mq | JP GC Master Quest | 33759 | ⚠️ 5267 not generated (MQ discovery gap) |
 | pal_mq | PAL GC Master Quest | 30084 | ⚠️ 5267 not generated + 1 failed |
-| pal_gc_dbg | PAL GC (Debug) | — | ❌ Torch SIGSEGV (no O2R) |
-| pal_mq_dbg | PAL GC MQ (Debug, 3 dumps) | — | ❌ Torch SIGSEGV (no O2R) |
+| pal_gc_dbg | PAL GC (Debug) | 35645 | ⚠️ 1 failed + 8 extras (syotes debug stub scene) |
+| pal_mq_dbg | PAL GC MQ (Debug, 3 dumps) | 30342 | ⚠️ 5267 not generated + syotes stub scene |
 | ntsc_1-2 | JP + USA N64 1.2 | — | ❌ Torch SIGSEGV (no O2R) |
 
-**8 of 14 targets clean.** Remaining clusters: MQ asset-discovery gap (~5267
-assets), and Torch crashes on the debug + 1.2 ROMs.
+**8 of 14 targets clean.** Remaining: MQ asset-discovery gap (~5267 assets), the
+`syotes` debug stub scene on the debug ROMs, and a Torch crash on the 1.2 ROMs.
 
 ## Submodules
 
 | Path | Repo | Pinned commit | Notes |
 |------|------|---------------|-------|
-| `torch/` | briaguya0/Torch `oot-assets-torchonly` | `2ddbd93` | PR #219 head — OoT factories, no scaffolding |
+| `torch/` | briaguya0/Torch `oot-assets-torchonly` | `7b7c50d` | PR #219 head — OoT factories, no scaffolding |
 | `shipwright/` | HarbourMasters/Shipwright `develop` | `95d8f7e` | upstream SoH (ZAPD bump #6952); builds the reference O2R |
 
 ## Layout
