@@ -679,11 +679,13 @@ def add_undeclared_to_yaml(yaml_path, entries):
         if "array_type" in entry:
             lines += f'  array_type: {entry["array_type"]}\n'
         # Supplemental VTX arrays are the ones ZAPD auto-discovers from display
-        # lists, which it emits with the flag field zeroed (DisplayListExporter's
-        # text round-trip). XML-declared <Array><Vtx/> arrays keep their flag.
-        # Mark these so Torch matches ZAPD's discovered-vertex behavior.
+        # lists and emits via its VTX() text round-trip. That path drops the flag
+        # field and never emits a cross-file-resolvable symbol, so ZAPD zeroes the
+        # flag and nulls cross-file references to them. XML-declared <Array><Vtx/>
+        # arrays keep both. Tell Torch to do the same for these.
         if entry.get("array_type") == "VTX":
             lines += f'  zero_flag: true\n'
+            lines += f'  null_cross_file: true\n'
         if "limb_type" in entry:
             lines += f'  limb_type: {entry["limb_type"]}\n'
         if "format" in entry:
