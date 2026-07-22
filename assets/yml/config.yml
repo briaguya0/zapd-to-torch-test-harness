@@ -1,6 +1,6 @@
-# Active = verified byte-for-byte vs manifest (0 failed, 0 missing, 0 extra).
-# Commented-out = not yet passing; failure summary above each. Uncomment as fixed.
-# Last batch: after VTX null_cross_file fix (torch oot-assets-torchonly 442af2d).
+# All 14 targets clean (0 failed, 0 missing, 0 extra) — every ROM extracts
+# byte-for-byte identical to the reference O2R.
+# Last batch: after 1.2 DMA offset fix (0x7960) + regenerated 1.2 dma/supplemental.
 
 0227d7c0074f2d0ac935631990da8ec5914597b4:
   name: Legend of Zelda, The - Ocarina of Time (Europe) (GameCube)
@@ -67,8 +67,6 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
     primary_virtual_segment: 0x80
     output:
       binary: oot.o2r
-
-# ---- not yet passing ----
 
 8b5d13aac69bfbf989861cfdc50b1d840945fc1d:
   name: Legend of Zelda, The - Ocarina of Time - Master Quest (USA) (GameCube)
@@ -195,27 +193,26 @@ d3ecb253776cd847a5aa63d859d8c89a2f37b364:
     output:
       binary: oot.o2r
 
-# FAILED: Torch SIGSEGV (exit 139) - no o2r (1.2-specific)
-# fa5f5942b27480d60243c2d52c0e93e26b9e6b86:
-#   name: Zelda no Densetsu - Toki no Ocarina (Japan) (Rev 2)
-#   path: ntsc_1-2
-#   config:
-#     gbi: F3DEX2_OoT
-#     sort: OFFSET
-#     logging: CRITICAL
-#     primary_virtual_segment: 0x80
-#     output:
-#       binary: oot.o2r
+fa5f5942b27480d60243c2d52c0e93e26b9e6b86:
+  name: Zelda no Densetsu - Toki no Ocarina (Japan) (Rev 2)
+  path: ntsc_1-2
+  config:
+    gbi: F3DEX2_OoT
+    sort: OFFSET
+    logging: CRITICAL
+    primary_virtual_segment: 0x80
+    output:
+      binary: oot.o2r
 
-# FAILED: Torch SIGSEGV (exit 139) - no o2r (USA 1.2, shares ntsc_1-2)
-# 41b3bdc48d98c48529219919015a1af22f5057c2:
-#   name: Legend of Zelda, The - Ocarina of Time (USA) (Rev 2)
-#   path: ntsc_1-2
-#   config:
-#     gbi: F3DEX2_OoT
-#     sort: OFFSET
-#     logging: CRITICAL
-#     primary_virtual_segment: 0x80
-#     output:
-#       binary: oot.o2r
+# USA 1.2, shares ntsc_1-2
+41b3bdc48d98c48529219919015a1af22f5057c2:
+  name: Legend of Zelda, The - Ocarina of Time (USA) (Rev 2)
+  path: ntsc_1-2
+  config:
+    gbi: F3DEX2_OoT
+    sort: OFFSET
+    logging: CRITICAL
+    primary_virtual_segment: 0x80
+    output:
+      binary: oot.o2r
 

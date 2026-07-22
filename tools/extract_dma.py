@@ -27,10 +27,10 @@ SHIPWRIGHT_FILELISTS = os.path.join(
 ROM_VERSIONS = {
     "ntsc_j_1-0":           ("ntsc_oot.txt",     0x7430),
     "ntsc_j_1-1":           ("ntsc_oot.txt",     0x7430),
-    "ntsc_j_1-2":           ("ntsc_12_oot.txt",  0x7430),
+    "ntsc_j_1-2":           ("ntsc_12_oot.txt",  0x7960),
     "ntsc_u_1-0":           ("ntsc_oot.txt",     0x7430),
     "ntsc_u_1-1":           ("ntsc_oot.txt",     0x7430),
-    "ntsc_u_1-2":           ("ntsc_12_oot.txt",  0x7430),
+    "ntsc_u_1-2":           ("ntsc_12_oot.txt",  0x7960),
     "ntsc_u_gc":            ("gamecube.txt",     0x7170),
     "ntsc_u_mq":            ("gamecube.txt",     0x7170),
     "ntsc_j_gc":            ("gamecube.txt",     0x7170),

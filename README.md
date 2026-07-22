@@ -30,10 +30,10 @@ byte-for-byte identical to the reference O2R (0 failed, 0 not-generated, 0 extra
 | pal_mq | PAL GC Master Quest | 35352 | ✅ clean |
 | pal_gc_dbg | PAL GC (Debug) | 35646 | ✅ clean |
 | pal_mq_dbg | PAL GC MQ (Debug, 3 dumps) | 35612 | ✅ clean |
-| ntsc_1-2 | JP + USA N64 1.2 | — | ❌ Torch SIGSEGV (no O2R) |
+| ntsc_1-2 | JP + USA N64 1.2 | 39032 | ✅ clean |
 
-**13 of 14 targets clean.** The only remaining target is ntsc_1-2, where Torch
-crashes before producing an O2R.
+**14 of 14 targets clean** — every ROM extracts byte-for-byte identical to the
+reference O2R.
 
 ## Submodules
 
