@@ -1,6 +1,6 @@
 # Active = verified byte-for-byte vs manifest (0 failed, 0 missing, 0 extra).
 # Commented-out = not yet passing; failure summary above each. Uncomment as fixed.
-# Last batch: after VTX zero_flag fix (torch oot-assets-torchonly 89e2954).
+# Last batch: after VTX null_cross_file fix (torch oot-assets-torchonly 442af2d).
 
 0227d7c0074f2d0ac935631990da8ec5914597b4:
   name: Legend of Zelda, The - Ocarina of Time (Europe) (GameCube)
@@ -114,42 +114,40 @@ cee6bc3c2a634b41728f2af8da54d9bf8cc14099:
     output:
       binary: oot.o2r
 
-# FAILED: 35610 passed, 2 failed - MQ scene gap closed; remaining are
-#   2 object DL mismatches (object_fish, object_zo ripple models)
-# 079b855b943d6ad8bd1eb026c0ed169ecbdac7da:
-#   name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (Debug) (GameCube)
-#   path: pal_mq_dbg
-#   config:
-#     gbi: F3DEX2_OoT
-#     sort: OFFSET
-#     logging: CRITICAL
-#     primary_virtual_segment: 0x80
-#     output:
-#       binary: oot.o2r
+079b855b943d6ad8bd1eb026c0ed169ecbdac7da:
+  name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (Debug) (GameCube)
+  path: pal_mq_dbg
+  config:
+    gbi: F3DEX2_OoT
+    sort: OFFSET
+    logging: CRITICAL
+    primary_virtual_segment: 0x80
+    output:
+      binary: oot.o2r
 
-# 2 object DL mismatches (object_fish, object_zo) (dump 2)
-# 50bebedad9e0f10746a52b07239e47fa6c284d03:
-#   name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (Debug) (GameCube)
-#   path: pal_mq_dbg
-#   config:
-#     gbi: F3DEX2_OoT
-#     sort: OFFSET
-#     logging: CRITICAL
-#     primary_virtual_segment: 0x80
-#     output:
-#       binary: oot.o2r
+# MQ debug, dump 2 (shares pal_mq_dbg)
+50bebedad9e0f10746a52b07239e47fa6c284d03:
+  name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (Debug) (GameCube)
+  path: pal_mq_dbg
+  config:
+    gbi: F3DEX2_OoT
+    sort: OFFSET
+    logging: CRITICAL
+    primary_virtual_segment: 0x80
+    output:
+      binary: oot.o2r
 
-# 2 object DL mismatches (object_fish, object_zo) (dump 3)
-# cfecfdc58d650e71a200c81f033de4e6d617a9f6:
-#   name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (Debug) (GameCube)
-#   path: pal_mq_dbg
-#   config:
-#     gbi: F3DEX2_OoT
-#     sort: OFFSET
-#     logging: CRITICAL
-#     primary_virtual_segment: 0x80
-#     output:
-#       binary: oot.o2r
+# MQ debug, dump 3 (shares pal_mq_dbg)
+cfecfdc58d650e71a200c81f033de4e6d617a9f6:
+  name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (Debug) (GameCube)
+  path: pal_mq_dbg
+  config:
+    gbi: F3DEX2_OoT
+    sort: OFFSET
+    logging: CRITICAL
+    primary_virtual_segment: 0x80
+    output:
+      binary: oot.o2r
 
 c892bbda3993e66bd0d56a10ecd30b1ee612210f:
   name: Zelda no Densetsu - Toki no Ocarina (Japan)
