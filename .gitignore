@@ -3,3 +3,6 @@ __pycache__/
 
 # Local Shipwright AppImage / CI build used to produce the reference O2R
 shipwright-bin/
+
+# Gate A: static-lib build tree
+torchlib-driver/build/
