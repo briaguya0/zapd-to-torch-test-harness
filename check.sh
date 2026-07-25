@@ -23,11 +23,18 @@ REF_DIR="$WORK_DIR/reference"
 TORCH_DIR="$WORK_DIR/torch"
 mkdir -p "$REF_DIR" "$TORCH_DIR"
 
+# -o (overwrite, never prompt) is REQUIRED, not just tidiness: torch writes 25
+# entries under a path that already exists in the archive -- 24 duplicated names in
+# pal_mq, all copies byte-identical. Without -o, unzip stops to ask "replace?",
+# reads EOF from a non-interactive stdin, and exits non-zero into set -e, so the
+# comparison below never runs at all. Benign for the game (libultraship indexes by
+# CRC64 of the path, so repeat inserts are idempotent); tracked upstream as item 5
+# of HarbourMasters/Torch#233. Counted and reported below so it can't go quiet.
 echo "Extracting reference.o2r..."
-unzip -q "$REFERENCE" -d "$REF_DIR"
+unzip -qo "$REFERENCE" -d "$REF_DIR"
 
 echo "Extracting torch.o2r..."
-unzip -q "$TORCH" -d "$TORCH_DIR"
+unzip -qo "$TORCH" -d "$TORCH_DIR"
 
 echo "Building file lists..."
 (cd "$REF_DIR" && find . -type f | sort) > "$WORK_DIR/reference_files.txt"
@@ -51,6 +58,14 @@ REF_COUNT=$(wc -l < "$WORK_DIR/reference_files.txt")
 TORCH_COUNT=$(wc -l < "$WORK_DIR/torch_files.txt")
 echo "Reference files: $REF_COUNT"
 echo "Torch files:     $TORCH_COUNT"
+
+# Duplicate archive entries collapse onto one path once extracted, so the file-by-file
+# comparison below structurally cannot see them. Report them explicitly. Informational:
+# every copy observed so far is byte-identical to its siblings (Torch#233 item 5).
+dup_names() { zipinfo -1 "$1" | sort | uniq -d | wc -l; }
+REF_DUPS=$(dup_names "$REFERENCE")
+TORCH_DUPS=$(dup_names "$TORCH")
+echo "Duplicate entry names (reference / torch): $REF_DUPS / $TORCH_DUPS"
 
 # Find missing and extra files
 comm -23 "$WORK_DIR/reference_files.txt" "$WORK_DIR/torch_files.txt" > "$WORK_DIR/missing.txt"
