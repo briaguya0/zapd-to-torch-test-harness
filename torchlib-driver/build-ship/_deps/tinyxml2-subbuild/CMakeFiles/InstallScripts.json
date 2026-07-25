@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
