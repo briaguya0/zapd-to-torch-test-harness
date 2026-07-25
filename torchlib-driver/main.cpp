@@ -67,9 +67,16 @@ static int RunOnce(const std::string& rom, const std::string& src, const std::st
     // Process() returns void and several fatal paths just log and return: no
     // config.yml, ROM hash absent from config.yml, no `config:` node, bad GBI.
     // Without this check a silent no-archive looks like success.
-    const auto out = fs::path(dest) / "oot.o2r";
-    if (!fs::exists(out)) {
-        fprintf(stderr, "[%s] no oot.o2r produced in %s\n", label, dest.c_str());
+    // config.yml names the output per ROM (oot.o2r, oot-mq.o2r for master quest).
+    fs::path out;
+    for (const auto& entry : fs::directory_iterator(dest)) {
+        if (entry.path().extension() == ".o2r") {
+            out = entry.path();
+            break;
+        }
+    }
+    if (out.empty()) {
+        fprintf(stderr, "[%s] no .o2r produced in %s\n", label, dest.c_str());
         return 3;
     }
 

@@ -11,6 +11,7 @@ Examples:
 """
 
 import argparse
+import glob
 import hashlib
 import json
 import os
@@ -222,12 +223,14 @@ def run_torch(scratch_dir, rom, work_dir):
             if re.search(r"\[(critical|error)\]", line):
                 print(line.rstrip())
 
-    o2r_file = os.path.join(o2r_out, "oot.o2r")
-    if not os.path.isfile(o2r_file):
-        print("ERROR: torch did not produce oot.o2r", file=sys.stderr)
+    # config.yml names the output per ROM (oot.o2r, oot-mq.o2r for master quest), so take
+    # whatever torch produced rather than assuming.
+    produced = sorted(glob.glob(os.path.join(o2r_out, "*.o2r")))
+    if len(produced) != 1:
+        print(f"ERROR: expected exactly one .o2r in {o2r_out}, found {len(produced)}", file=sys.stderr)
         sys.exit(1)
 
-    return o2r_file
+    return produced[0]
 
 
 def hash_assets_from_o2r(o2r_path, asset_set):

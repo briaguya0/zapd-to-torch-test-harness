@@ -1,0 +1,21 @@
+# ninja log v7
+0	13	1784951100426064371	tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-mkdir	3e90c7bc8369acc3
+0	13	1784951100426064371	/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-mkdir	3e90c7bc8369acc3
+13	582	1784951100993950109	tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-download	997a990d408d871c
+13	582	1784951100993950109	/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-download	997a990d408d871c
+582	593	1784951100994950102	tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-update	9c24b5d2e99764
+582	593	1784951100994950102	/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-update	9c24b5d2e99764
+593	605	1784951101017949944	tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-patch	c79d86a4ee1b8a65
+593	605	1784951101017949944	/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-patch	c79d86a4ee1b8a65
+605	618	1784951101029949861	tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-configure	c4d9383dcf25f7d4
+605	618	1784951101029949861	/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-configure	c4d9383dcf25f7d4
+618	630	1784951101042949771	tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-build	72fd71f72ed90b1d
+618	630	1784951101042949771	/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-build	72fd71f72ed90b1d
+630	641	1784951101052949703	tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-install	616ea84ce1c60cda
+630	641	1784951101052949703	/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-install	616ea84ce1c60cda
+641	652	1784951101064949620	tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-test	a130b4ddb17540e9
+641	652	1784951101064949620	/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-test	a130b4ddb17540e9
+652	669	1784951101081949503	CMakeFiles/tinyxml2-populate-complete	8223191ca148407f
+652	669	1784951101081949503	tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-done	8223191ca148407f
+652	669	1784951101081949503	/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/CMakeFiles/tinyxml2-populate-complete	8223191ca148407f
+652	669	1784951101081949503	/home/briaguya/code/zapd-to-torch-test-harness/torchlib-driver/build-ship/_deps/tinyxml2-subbuild/tinyxml2-populate-prefix/src/tinyxml2-populate-stamp/tinyxml2-populate-done	8223191ca148407f

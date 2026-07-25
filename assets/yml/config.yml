@@ -84,7 +84,7 @@ cfbb98d392e4a9d39da8285d10cbef3974c2f012:
     primary_virtual_segment: 0x80
     strict_declarations: true
     output:
-      binary: oot.o2r
+      binary: oot-mq.o2r
 
 dd14e143c4275861fe93ea79d0c02e36ae8c6c2f:
   name: Zelda no Densetsu - Toki no Ocarina GC Ura (Japan) (GameCube)
@@ -96,7 +96,7 @@ dd14e143c4275861fe93ea79d0c02e36ae8c6c2f:
     primary_virtual_segment: 0x80
     strict_declarations: true
     output:
-      binary: oot.o2r
+      binary: oot-mq.o2r
 
 f46239439f59a2a594ef83cf68ef65043b1bffe2:
   name: Legend of Zelda, The - Ocarina of Time - Master Quest (Europe) (GameCube)
@@ -108,7 +108,7 @@ f46239439f59a2a594ef83cf68ef65043b1bffe2:
     primary_virtual_segment: 0x80
     strict_declarations: true
     output:
-      binary: oot.o2r
+      binary: oot-mq.o2r
 
 cee6bc3c2a634b41728f2af8da54d9bf8cc14099:
   name: Legend of Zelda, The - Ocarina of Time (Europe) (Debug) (GameCube)
@@ -132,7 +132,7 @@ cee6bc3c2a634b41728f2af8da54d9bf8cc14099:
     primary_virtual_segment: 0x80
     strict_declarations: true
     output:
-      binary: oot.o2r
+      binary: oot-mq.o2r
 
 # MQ debug, dump 2 (shares pal_mq_dbg)
 50bebedad9e0f10746a52b07239e47fa6c284d03:
@@ -145,7 +145,7 @@ cee6bc3c2a634b41728f2af8da54d9bf8cc14099:
     primary_virtual_segment: 0x80
     strict_declarations: true
     output:
-      binary: oot.o2r
+      binary: oot-mq.o2r
 
 # MQ debug, dump 3 (shares pal_mq_dbg)
 cfecfdc58d650e71a200c81f033de4e6d617a9f6:
@@ -158,7 +158,7 @@ cfecfdc58d650e71a200c81f033de4e6d617a9f6:
     primary_virtual_segment: 0x80
     strict_declarations: true
     output:
-      binary: oot.o2r
+      binary: oot-mq.o2r
 
 c892bbda3993e66bd0d56a10ecd30b1ee612210f:
   name: Zelda no Densetsu - Toki no Ocarina (Japan)

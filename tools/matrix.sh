@@ -66,7 +66,8 @@ if [[ $PAIR_MODE -eq 1 ]]; then
     fails=0
     for pair in "$DEST_A:$PAIR_A" "$DEST_B:$PAIR_B"; do
         dest="${pair%%:*}"; rom="${pair##*:}"
-        cp "$dest/oot.o2r" o2r/torch.o2r
+        # config.yml names the output per ROM (oot-mq.o2r for master quest)
+        cp "$dest"/*.o2r o2r/torch.o2r
         cp "o2r/$rom.o2r"  o2r/reference.o2r
         if ./check.sh >"$LOG_DIR/$rom.log" 2>&1; then
             printf '  %-28s PASS\n' "$rom"
