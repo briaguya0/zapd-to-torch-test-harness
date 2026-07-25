@@ -31,7 +31,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 SOH_DIR = os.path.dirname(SCRIPT_DIR)
 MAIN_DIR = os.path.join(SOH_DIR, "assets", "yml")
 LOG_DIR = os.path.join(SOH_DIR, "logs")
-TORCH = os.path.join(SOH_DIR, "torch", "build", "torch")
+# TORCH_BIN lets a differently-configured build (static lib driver, OoT-only,
+# Release, ...) be swapped in without editing this file between runs.
+TORCH = os.environ.get("TORCH_BIN") or os.path.join(SOH_DIR, "torch", "build", "torch")
 
 
 def elapsed(t0):

@@ -9,7 +9,7 @@ resolve_paths() {
     O2R_DIR="$SOH_DIR/o2r"
     ROM_VERSION="${ROM_VERSION:-pal_gc}"
     MANIFEST="$SOH_DIR/manifests/${ROM_VERSION}.json"
-    TORCH="$SOH_DIR/torch/build/torch"
+    TORCH="${TORCH_BIN:-$SOH_DIR/torch/build/torch}"
     SCRATCH_DIR=$(mktemp -d)
     MAIN_DIR="$SOH_DIR/assets/yml"
 }
