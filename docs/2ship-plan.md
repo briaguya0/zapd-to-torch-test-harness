@@ -109,7 +109,7 @@ Gate: OoT invariance.
 2. Run its extractor against a local NTSC-U 1.0 ROM (`d6133ace…`) → `mm.o2r`, kept local
    in `o2r/`. Fall back to a local ZAPDTR/OTRExporter build if the artifact is
    unavailable at the pinned commit.
-3. `./manifest.sh o2r/mm.o2r manifests/mm_n64_us.json` — hashes and asset paths only,
+3. `./manifest.sh o2r/mm.o2r manifests/ntsc_u.json` — hashes and asset paths only,
    safe to commit. `manifest.sh` and `check.sh` are already game-agnostic (they only
    unzip, hash, and diff) and need **no changes**.
 
@@ -151,7 +151,7 @@ shares outright register the shared `Zelda64::` factory under an `MM:` name; div
 ones get an MM implementation.
 
 This is the long grind. Drive it exactly as OoT was driven: run
-`tools/test_assets.py --category …` against `manifests/mm_n64_us.json` and work
+`tools/test_assets.py --category …` against `manifests/ntsc_u.json` and work
 category by category — textures and DLists first (they bottom out most other types),
 then skeletons/animations, collision, scenes/rooms, cutscenes, text, audio — until
 `0 failed, 0 not generated, 0 not in reference`.
@@ -181,8 +181,8 @@ cp build/soh/oot.o2r o2r/torch.o2r
 One ROM (pal_gc retail) per change; the full matrix is Phase 6. `check.sh` reports
 missing / extra / mismatched counts and needs no modification.
 
-**MM progress metric:** `python3 tools/test_assets.py <mm rom> --rom-version mm_n64_us`,
-scored against `manifests/mm_n64_us.json`. Done is `0 failed, 0 not generated, 0 not in
+**MM progress metric:** `python3 tools/test_assets.py <mm rom> --rom-version ntsc_u`,
+scored against `manifests/ntsc_u.json`. Done is `0 failed, 0 not generated, 0 not in
 reference`.
 
 **Constraint check before every commit:** confirm no added file contains ROM bytes —
