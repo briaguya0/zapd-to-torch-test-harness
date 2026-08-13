@@ -32,45 +32,47 @@ import sys
 import xml.etree.ElementTree as ET
 
 
-# Map XML element names to Torch YAML type strings
+# Map XML element names to Torch YAML type strings.
+#
+# Bare names are Torch's shared factories and work today. MM:-prefixed names are
+# Majora's Mask factories that do not exist in Torch yet -- emitting them is how
+# we find out what still has to be written. See docs/2ship-plan.md phase 5.
 TYPE_MAP = {
+    # Shared factories, already in Torch
     "Blob": "BLOB",
     "Texture": "TEXTURE",
     "DList": "GFX",
     "Vtx": "VTX",
-    "Mtx": "OOT:MTX",
-    "Array": "ARRAY",
-    # OoT-specific types (Phase 2+)
-    "Skeleton": "OOT:SKELETON",
-    "Limb": "OOT:LIMB",
-    "Animation": "OOT:ANIMATION",
-    "LegacyAnimation": "OOT:ANIMATION",
-    "CurveAnimation": "OOT:CURVE_ANIMATION",
-    "PlayerAnimation": "OOT:PLAYER_ANIMATION",
-    "PlayerAnimationData": "OOT:PLAYER_ANIMATION_DATA",
-    "Scene": "OOT:SCENE",
-    "Room": "OOT:ROOM",
-    "Collision": "OOT:COLLISION",
-    "Cutscene": "OOT:CUTSCENE",
-    "Path": "OOT:PATH",
-    "Text": "OOT:TEXT",
-    "Soundfont": "OOT:SOUNDFONT",
-    "Sample": "OOT:SAMPLE",
-    "Sequence": "OOT:SEQUENCE",
-    "Audio": "OOT:AUDIO",
+    "Array": "MM:ARRAY",
+    # MM-specific, pending factories
+    "Mtx": "MM:MTX",
+    "Skeleton": "MM:SKELETON",
+    "Limb": "MM:LIMB",
+    "Animation": "MM:ANIMATION",
+    "CurveAnimation": "MM:CURVE_ANIMATION",
+    "KeyFrameAnimation": "MM:KEYFRAME_ANIMATION",
+    "KeyFrameSkel": "MM:KEYFRAME_SKELETON",
+    "PlayerAnimation": "MM:PLAYER_ANIMATION",
+    "PlayerAnimationData": "MM:PLAYER_ANIMATION_DATA",
+    "Scene": "MM:SCENE",
+    "Room": "MM:ROOM",
+    "Collision": "MM:COLLISION",
+    "Cutscene": "MM:CUTSCENE",
+    "TextureAnimation": "MM:TEXTURE_ANIMATION",
+    "TextMM": "MM:TEXT",
+    "Soundfont": "MM:SOUNDFONT",
+    "Sample": "MM:SAMPLE",
+    "Sequence": "MM:SEQUENCE",
+    "Audio": "MM:AUDIO",
 }
 
-# XML element names that are structural, not assets
-SKIP_ELEMENTS = {"Root", "File", "ExternalFile", "Samples", "Sequences", "Symbol"}
-
-# OTRExporter renames certain symbols for non-MQ ROMs (Main.cpp:165-171).
-# Keys are the XML Name, values are the output symbol name.
-NON_MQ_RENAMES = {
-    "gTitleZeldaShieldLogoMQTex": "gTitleZeldaShieldLogoTex",
+# XML element names that are structural, not assets. Vector/Scalar/Pointer/
+# CollisionPoly describe an Array's element kind and are read by convert_array;
+# they are never assets in their own right (they carry no Name or Offset).
+SKIP_ELEMENTS = {
+    "Root", "File", "ExternalFile", "Samples", "Sequences", "Symbol",
+    "Vector", "Scalar", "Pointer", "CollisionPoly",
 }
-
-# Set from xml_dir in main(); True when the XML directory indicates a non-MQ ROM.
-_is_non_mq = False
 
 
 def convert_texture(elem):
@@ -147,7 +149,7 @@ def convert_mtx(elem):
 def convert_array(elem):
     """Convert an Array XML element to YAML dict."""
     entry = {
-        "type": "OOT:ARRAY",
+        "type": "MM:ARRAY",
         "offset": hex_val(elem.get("Offset")),
         "symbol": elem.get("Name"),
         "count": int(elem.get("Count")),
@@ -169,7 +171,7 @@ def convert_array(elem):
 def convert_audio(elem):
     """Convert an Audio XML element with full metadata extraction."""
     entry = {
-        "type": "OOT:AUDIO",
+        "type": "MM:AUDIO",
         "offset": hex_val(elem.get("Offset")),
         "symbol": elem.get("Name"),
         "sound_font_table_offset": hex_val(elem.get("SoundFontTableOffset")),
@@ -279,9 +281,9 @@ def yaml_value(v):
     return str(v)
 
 
-def _format_config(segment, phys_start, extra_segments=None, external_files=None, virtual=None, directory=None):
+def _format_config(segment, seg_base, extra_segments=None, external_files=None, virtual=None, directory=None):
     """Format the :config: section of a YAML file."""
-    lines = [":config:\n", "  segments:\n", f"    - [ {segment}, {phys_start} ]\n"]
+    lines = [":config:\n", "  segments:\n", f"    - [ {segment}, {seg_base} ]\n"]
     if extra_segments:
         for seg_num, seg_start in extra_segments:
             lines.append(f"    - [ {seg_num}, {seg_start} ]\n")
@@ -300,9 +302,6 @@ def _format_config(segment, phys_start, extra_segments=None, external_files=None
 def _format_asset(asset):
     """Format a single asset entry as YAML text."""
     name = asset.get("symbol", asset.get("type", "unknown"))
-    if _is_non_mq:
-        name = NON_MQ_RENAMES.get(name, name)
-        asset["symbol"] = name
     lines = [f"{name}:\n"]
     for k, v in asset.items():
         if isinstance(v, list):
@@ -363,20 +362,20 @@ def _parse_existing_yaml(path):
 
 
 def _asset_sort_key(asset):
-    """Sort key: OOT:SCENE/OOT:ROOM first, then everything else.
+    """Sort key: MM:SCENE/MM:ROOM first, then everything else.
     This ensures scene factory processes rooms before GFX DLists,
     preventing VTX auto-discovery conflicts."""
     t = asset.get("type", "")
-    if t in ("OOT:SCENE", "OOT:ROOM"):
+    if t in ("MM:SCENE", "MM:ROOM"):
         return (0, asset.get("symbol", ""))
     return (1, asset.get("symbol", ""))
 
-def write_yaml(path, segment, phys_start, assets, extra_segments=None, external_files=None, virtual=None, directory=None):
+def write_yaml(path, segment, seg_base, assets, extra_segments=None, external_files=None, virtual=None, directory=None):
     """Write a Torch YAML file, merging with existing content if the file exists."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     assets = sorted(assets, key=_asset_sort_key)
 
-    new_config = _format_config(segment, phys_start, extra_segments, external_files, virtual, directory=directory)
+    new_config = _format_config(segment, seg_base, extra_segments, external_files, virtual, directory=directory)
 
     if os.path.exists(path):
         old_config, old_assets, existing_names = _parse_existing_yaml(path)
@@ -440,44 +439,39 @@ def xml_has_asset_types(xml_path, types=None):
 
 
 def get_scene_prefix(xml_rel_path):
-    """Determine scene output prefix (scenes/shared, scenes/nonmq or scenes/mq).
+    """Determine the scene output prefix.
 
-    Matches OTRExporter's GetPrefix() logic in DisplayListExporter.cpp:1054-1088.
-    Dungeons with MQ variants go to scenes/mq/ on MQ ROMs and scenes/nonmq/ on
-    non-MQ ROMs; everything else goes to scenes/shared/.
+    MM has no Master Quest, but OTRExporter still emits under the nonmq prefix --
+    the reference archive's scene paths are all scenes/nonmq/<SCENE>/<asset>, with
+    no shared/ or mq/ sibling. So the prefix is constant, but it is not "scenes".
     """
-    xml_basename = os.path.basename(xml_rel_path)  # e.g. "bdan.xml"
-
-    # Regex matching dungeons that have unique MQ variants
-    mq_dungeons = re.compile(
-        r"^((ydan)|(ddan)|(bdan)|(Bmori1)|(HIDAN)|(MIZUsin)"
-        r"|(jyasinzou)|(HAKAdan)|(HAKAdanCH)|(ice_doukutu)|(men)|(ganontika))\.xml$"
-    )
-
-    if "dungeons/" in xml_rel_path and mq_dungeons.match(xml_basename):
-        return "scenes/nonmq" if _is_non_mq else "scenes/mq"
-    return "scenes/shared"
+    return "scenes/nonmq"
 
 
 def get_output_category(xml_rel_path):
     """Map XML relative path to output category directory."""
-    # xml_rel_path is like "objects/object_lightbox.xml" or "scenes/dungeons/bdan.xml"
+    # xml_rel_path is like "objects/object_link_child.xml" or "scenes/SPOT00/SPOT00.xml"
     if xml_rel_path.startswith("scenes/"):
-        # Scene files go to scenes/{shared,nonmq}/
-        # e.g. scenes/dungeons/bdan.xml → scenes/nonmq
         return get_scene_prefix(xml_rel_path)
+    # The reference archive does not keep these two XML directories in the asset
+    # path: interface/icon_item_24_static_yar/... is emitted as
+    # icon_item_24_static_yar/... . Everything else keeps its directory.
+    for flattened in ("interface/", "archives/"):
+        if xml_rel_path.startswith(flattened):
+            return os.path.dirname(xml_rel_path[len(flattened):])
     return os.path.dirname(xml_rel_path)
 
 
 def get_scene_directory(xml_rel_path):
     """Get the scene directory for a scene XML file.
 
-    All assets from a scene XML (scene + rooms) output under the same directory.
-    e.g. scenes/dungeons/bdan.xml → scenes/nonmq/bdan_scene
+    All assets from a scene XML (scene + rooms) output under the same directory,
+    e.g. scenes/SPOT00/SPOT00.xml → scenes/nonmq/SPOT00. Unlike OoT there is no
+    _scene suffix: the reference names the directory after the scene itself.
     """
     prefix = get_scene_prefix(xml_rel_path)
-    stem = os.path.splitext(os.path.basename(xml_rel_path))[0]  # "bdan"
-    return f"{prefix}/{stem}_scene"
+    stem = os.path.splitext(os.path.basename(xml_rel_path))[0]
+    return f"{prefix}/{stem}"
 
 
 def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_dir=None):
@@ -503,11 +497,11 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
         if ext_dma_name in dma_table:
             ext_full_path = os.path.join(xml_dir, ext_xml_path) if xml_dir else None
             # Only include if the external XML has texture/DList assets we can use
-            if ext_full_path and not xml_has_asset_types(ext_full_path):
+            if ext_full_path and not xml_has_asset_types(ext_full_path, allowed_types):
                 continue
             ext_seg = get_segment_from_xml(ext_full_path) if ext_full_path else None
             if ext_seg is not None:
-                extra_segments.append((ext_seg, dma_table[ext_dma_name]["phys_start"]))
+                extra_segments.append((ext_seg, ext_dma_name))
                 ext_category = os.path.dirname(ext_xml_path)
                 external_files.append(f"{out_prefix}/{ext_category}/{ext_dma_name}.yml")
 
@@ -525,6 +519,11 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
             continue
 
         dma_entry = dma_table[dma_name]
+        # Segment bases are emitted as DMA file names, not hex offsets; Torch
+        # resolves them through the filelist (PR #253). See assets/yml/README.md.
+        seg_base = dma_name
+        # `virtual:` is still parsed as a raw uint32 by Torch (Companion.cpp:657),
+        # so it keeps the literal offset rather than a name.
         phys_start = dma_entry["phys_start"]
 
         # Copy per-XML externals and auto-add segments for objects with DLists
@@ -537,13 +536,13 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
             if gk_name in dma_table and dma_name != gk_name:
                 gk_already = any(seg == 4 for seg, _ in file_extra_segments)
                 if not gk_already:
-                    file_extra_segments.append((4, dma_table[gk_name]["phys_start"]))
+                    file_extra_segments.append((4, gk_name))
                     file_external_files.append(f"{out_prefix}/objects/{gk_name}.yml")
             # Auto-add segments 8-13 = same file (used for skeleton/limb texture references)
             # OoT uses these segments for eye textures, mouth textures, and limb DLists
             for extra_seg in range(8, 14):
                 if not any(seg == extra_seg for seg, _ in file_extra_segments):
-                    file_extra_segments.append((extra_seg, phys_start))
+                    file_extra_segments.append((extra_seg, seg_base))
 
         # Auto-add audio segments when an Audio element is present
         has_audio = any(elem.tag == "Audio" for elem in file_elem)
@@ -551,7 +550,7 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
             for seg_name, seg_id in [("Audiobank", 1), ("Audioseq", 2), ("Audiotable", 3)]:
                 if seg_name in dma_table:
                     if not any(seg == seg_id for seg, _ in file_extra_segments):
-                        file_extra_segments.append((seg_id, dma_table[seg_name]["phys_start"]))
+                        file_extra_segments.append((seg_id, seg_name))
 
         is_room_file = xml_rel_path.startswith("scenes/") and "_room_" in out_name
 
@@ -562,7 +561,7 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
 
             # Skip DList entries in room files that will be auto-discovered by the
             # scene factory's SetMesh processing. Keep others (child DLists, scene-level).
-            # All DLists MUST be ordered after OOT:ROOM in the YAML (see write_yaml
+            # All DLists MUST be ordered after MM:ROOM in the YAML (see write_yaml
             # sorting) to avoid VTX auto-discovery conflicts.
             # We can't tell which DLists are mesh vs child from XML alone, so we keep
             # all of them. The scene factory's AddAsset deduplicates: if it already
@@ -604,11 +603,10 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
                 # Room DLists reference segment 2 textures from the scene file.
                 # Add the scene's segment 2 so Torch can resolve those references.
                 stem = os.path.splitext(os.path.basename(xml_rel_path))[0]
-                scene_dma_name = f"{stem}_scene"
+                scene_dma_name = stem
                 if scene_dma_name in dma_table:
-                    scene_phys = dma_table[scene_dma_name]["phys_start"]
                     if not any(seg == 2 for seg, _ in file_extra_segments):
-                        file_extra_segments.append((2, scene_phys))
+                        file_extra_segments.append((2, scene_dma_name))
                     # Add scene YAML as external file so Torch can find scene textures
                     scene_yml = f"{out_prefix}/{category}/{scene_dma_name}.yml"
                     if scene_yml not in file_external_files:
@@ -619,7 +617,7 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
                 if sys_matrix_yml not in file_external_files:
                     file_external_files.append(sys_matrix_yml)
 
-        write_yaml(yaml_path, segment, phys_start, assets,
+        write_yaml(yaml_path, segment, seg_base, assets,
                    extra_segments=file_extra_segments or None,
                    external_files=file_external_files or None,
                    virtual=virtual,
@@ -914,31 +912,82 @@ def add_supplemental_from_json(supplemental_json_path, yaml_dir):
     return total_added, files_updated
 
 
+def prune_missing_external_files(out_dir):
+    """Drop external_files entries whose target YAML does not exist.
+
+    Paths are relative to the srcdir root (one level above out_dir), e.g.
+    "ntsc_u/objects/gameplay_keep.yml".
+    """
+    src_root = os.path.dirname(os.path.normpath(out_dir))
+    removed = 0
+    for dirpath, _, filenames in os.walk(out_dir):
+        for fn in filenames:
+            if not fn.endswith(".yml"):
+                continue
+            path = os.path.join(dirpath, fn)
+            with open(path) as f:
+                lines = f.readlines()
+
+            out = []
+            in_ext = False
+            for line in lines:
+                if line.strip() == "external_files:":
+                    in_ext = True
+                    out.append(line)
+                    continue
+                if in_ext:
+                    m = re.match(r"^\s+- (.+)$", line)
+                    if m:
+                        if not os.path.isfile(os.path.join(src_root, m.group(1).strip())):
+                            removed += 1
+                            continue
+                        out.append(line)
+                        continue
+                    in_ext = False
+                out.append(line)
+
+            # An external_files: header with nothing left under it is invalid YAML.
+            cleaned = []
+            for i, line in enumerate(out):
+                if line.strip() == "external_files:":
+                    nxt = out[i + 1] if i + 1 < len(out) else ""
+                    if not re.match(r"^\s+- ", nxt):
+                        continue
+                cleaned.append(line)
+
+            if cleaned != lines:
+                with open(path, "w") as f:
+                    f.writelines(cleaned)
+    return removed
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Convert ZAPD/Shipwright XML to Torch YAML")
-    parser.add_argument("--xml-dir", required=True, help="Path to XML directory (e.g. GC_NMQ_PAL_F)")
+    parser = argparse.ArgumentParser(description="Convert 2ship/ZAPD MM XML to Torch YAML")
+    parser.add_argument("--xml-dir", required=True, help="Path to XML directory (e.g. 2ship/mm/assets/xml/N64_US)")
     parser.add_argument("--dma-json", required=True, help="Path to DMA table JSON")
     parser.add_argument("--out-dir", required=True, help="Output YAML directory")
     parser.add_argument("--supplemental-json", help="Path to supplemental JSON from generate_supplemental.py")
     parser.add_argument("--types", help="Comma-separated list of XML types to convert (default: all)")
     args = parser.parse_args()
 
-    # Detect MQ status from xml_dir name (e.g. GC_NMQ_PAL_F vs GC_MQ_PAL_F)
-    global _is_non_mq
-    xml_dir_name = os.path.basename(os.path.normpath(args.xml_dir))
-    _is_non_mq = "_NMQ_" in xml_dir_name or not "_MQ_" in xml_dir_name
-
     with open(args.dma_json) as f:
         dma_table = json.load(f)
 
     allowed_types = set(args.types.split(",")) if args.types else None
 
-    # Auto-include dependency types:
-    # - Array, Vtx, Mtx: dependencies of DLists
-    # - Limb: dependencies of Skeletons
-    # - PlayerAnimation: header entries that reference PlayerAnimationData
+    # Auto-include dependency types, but only the ones the request actually needs.
+    # Pulling in all of them unconditionally means a --types Texture run also emits
+    # Mtx/Limb/PlayerAnimation, whose MM factories do not exist yet, and torch
+    # aborts on the first one.
     if allowed_types:
-        allowed_types.update({"Array", "Vtx", "Mtx", "Limb", "PlayerAnimation"})
+        deps = {
+            "DList": {"Array", "Vtx", "Mtx"},
+            "Skeleton": {"Limb"},
+            "PlayerAnimationData": {"PlayerAnimation"},
+        }
+        for requested, extra in deps.items():
+            if requested in allowed_types:
+                allowed_types.update(extra)
 
     # Step 1: Convert XML to YAML
     total_files = 0
@@ -955,6 +1004,15 @@ def main():
             total_assets += assets
 
     print(f"Wrote {total_files} YAML files with {total_assets} assets")
+
+    # A --types run generates only some of the YAMLs, so external_files can point
+    # at files that were never written and torch aborts with YAML::BadFile. Drop
+    # those references. On a full run nothing should dangle, so leave them be --
+    # a dangling reference there is a real bug worth seeing.
+    if allowed_types:
+        pruned = prune_missing_external_files(args.out_dir)
+        if pruned:
+            print(f"Pruned {pruned} external_files references to ungenerated YAMLs")
 
     # Step 2: Add supplemental assets (consolidated JSON with YAML-path keys)
     if args.supplemental_json:

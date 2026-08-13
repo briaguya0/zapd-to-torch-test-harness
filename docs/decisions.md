@@ -188,7 +188,51 @@ rebuilding: `offset: 0` aborts with `std::out_of_range` from
 correct output byte-for-byte. So the fix guards a case that genuinely breaks,
 which was previously only a claim.
 
-### 19. Reference o2r archives are disposable; the manifests are the reference
+### 19. `zapd_to_torch.py` converted in place to MM, not rewritten
+
+Most of the 968 lines are game-agnostic (XML walking, YAML formatting, external
+file resolution, supplemental injection). What changed: the type map, the removal
+of Master Quest handling, the scene path rules, and segment bases becoming DMA
+names.
+
+MM-specific types are emitted with an `MM:` prefix even though **no MM factory
+exists in Torch yet**. That is deliberate — emitting them is how we find out what
+still has to be written. Only the shared factories (TEXTURE, BLOB, GFX, VTX)
+produce anything today.
+
+`--types` now pulls in only the dependencies the request actually needs
+(`DList`→Vtx/Array/Mtx, `Skeleton`→Limb). It used to add all of them
+unconditionally, which made a texture-only run also emit `MM:MTX` and abort.
+Partial runs additionally prune `external_files` entries pointing at YAMLs that
+run didn't generate; on a full run they are left alone, since a dangling
+reference there is a real bug worth seeing.
+
+### 20. Two MM path conventions had to be read off the reference, not assumed
+
+Both were initially wrong in the obvious-looking direction:
+
+- **Scenes keep the `nonmq` prefix.** MM has no Master Quest, so dropping it
+  looked right. The reference emits `scenes/nonmq/<SCENE>/<asset>` with no
+  `shared/` or `mq/` sibling. The scene directory is also the bare scene name —
+  no `_scene` suffix as in OoT.
+- **`interface/` and `archives/` are flattened away.** `interface/parameter_static/X`
+  in the XML tree is `parameter_static/X` in the archive. This accounted for all
+  4941 "extra" assets in the first scored run; every one had its basename in the
+  reference under a different directory.
+
+### 21. `_yar` archives need a Torch container format, not a config tweak
+
+The 520 remaining texture failures are exactly the `archives/*_yar` files. They
+are not plain data at their DMA offset: the file opens with a table of u32
+offsets to sub-files, the first of which carries a `Yaz0` magic and a
+decompressed size of `0x900` — exactly one 24×24 RGBA32 texture. The DMA entry
+reports the file uncompressed (`phys_end == 0`), so Torch reads the container
+bytes directly and every texture in it comes out as garbage.
+
+This is an MM-specific container Torch has no concept of, so it is Phase 5 work,
+not a YAML or config fix.
+
+### 22. Reference o2r archives are disposable; the manifests are the reference
 
 `test_assets.py` scores against `manifests/<version>.json`, not against an
 archive, so the archives themselves need not be kept once hashed.
