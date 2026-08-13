@@ -27,6 +27,7 @@ Example:
 import argparse
 import json
 import os
+import collections
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -146,15 +147,21 @@ def convert_mtx(elem):
     }
 
 
+# Array element kinds the Torch array factory cannot build yet. MM declares four
+# such arrays in total; they are skipped and tallied rather than emitted, since an
+# array with no array_type aborts the whole extraction.
+UNSUPPORTED_ARRAY_KINDS = collections.Counter()
+
+
 def convert_array(elem):
-    """Convert an Array XML element to YAML dict."""
+    """Convert an Array XML element to YAML dict, or None if unsupported."""
     entry = {
         "type": "MM:ARRAY",
         "offset": hex_val(elem.get("Offset")),
         "symbol": elem.get("Name"),
         "count": int(elem.get("Count")),
     }
-    # Check for child elements that define the array type
+    # Child elements define the array's element type
     for child in elem:
         if child.tag == "Vtx":
             entry["array_type"] = "VTX"
@@ -165,6 +172,14 @@ def convert_array(elem):
                 entry["array_type"] = "Vec3s"
             elif vec_type == "f32" and dims == "3":
                 entry["array_type"] = "Vec3f"
+        break
+
+    if "array_type" not in entry:
+        kind = elem[0].tag if len(elem) else "<no child>"
+        if len(elem) and elem[0].get("Type"):
+            kind += "/" + elem[0].get("Type")
+        UNSUPPORTED_ARRAY_KINDS[kind] += 1
+        return None
     return entry
 
 
@@ -1015,6 +1030,11 @@ def main():
             total_assets += assets
 
     print(f"Wrote {total_files} YAML files with {total_assets} assets")
+
+    if UNSUPPORTED_ARRAY_KINDS:
+        detail = ", ".join(f"{k}x{v}" for k, v in sorted(UNSUPPORTED_ARRAY_KINDS.items()))
+        print(f"Skipped {sum(UNSUPPORTED_ARRAY_KINDS.values())} arrays of unsupported "
+              f"element kinds ({detail}) -- no Torch array factory for these yet")
 
     # A --types run generates only some of the YAMLs, so external_files can point
     # at files that were never written and torch aborts with YAML::BadFile. Drop
