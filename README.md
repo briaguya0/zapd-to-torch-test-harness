@@ -42,6 +42,7 @@ Full breakdown, diagnoses, and what is deferred and why: **[docs/mm-status.md](d
 | [docs/2ship-plan.md](docs/2ship-plan.md) | the plan, in phases |
 | [docs/decisions.md](docs/decisions.md) | decisions and the options not taken |
 | [docs/mm-status.md](docs/mm-status.md) | current scoreboard and remaining gaps |
+| [docs/mm-remaining-work.md](docs/mm-remaining-work.md) | plan for the remaining 1600, diagnosed and ordered |
 | [docs/mm-dma.md](docs/mm-dma.md) | where the DMA offsets come from, and how they're verified |
 | [docs/mm-yar-archives.md](docs/mm-yar-archives.md) | the CmpDma container format under `archives/` |
 
