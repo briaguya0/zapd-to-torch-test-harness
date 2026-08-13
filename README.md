@@ -19,33 +19,59 @@ git clone --recurse-submodules https://github.com/briaguya0/zapd-to-torch-test-h
 
 ## Status
 
+**Complete.** Every asset in the reference archive is reproduced byte for byte.
+
 Against `manifests/ntsc_u.json` (50496 assets, OTRExporter reference for NTSC-U 1.0):
 
 ```
-PASS  50489   (99.99%)
-FAIL      3
-EXTRA     0   (20 of the reference not generated at all)
+generated 50496 of 50496 reference assets
+  PASS  50496
+  FAIL      0
+  EXTRA     0
 ```
 
-Byte-identical using the **OoT factories unmodified**: TEXTURE 13542/13542,
-MM:LIMB 3495/3495, MM:PATH 688/688, MM:TEXTURE_ANIMATION 293/293,
-MM:CUTSCENE 421/421,
-MM:ANIMATION 1755/1755,
-rooms 414/414, MM:PLAYER_ANIMATION 695/695,
-MM:MTX 11/11.
+OoT is unaffected throughout: `./tools/oot_gate.sh pal_gc` → 35386 matching, 0
+mismatched.
 
-The reference is built from `briaguya0/2ship2harkinian` branch
-`deterministic-extraction`, which bumps ZAPDTR past `be1c68a` (#37). Stock 2ship
-writes uninitialized memory into 1929 limbs, making them impossible to match.
+Much of this rides on OoT's factories unchanged — MM runs the same engine and
+shares most formats, which is the argument for a shared `zelda64/` namespace
+rather than MM copies. TEXTURE (13542), MM:ANIMATION (1755), MM:PLAYER_ANIMATION
+and its data (695 each) and MM:CURVE_ANIMATION (3) needed no factory work at all.
+The rest needed either MM-specific behaviour inside the shared factories (scenes,
+rooms, collision, cutscenes, display lists, skeletons, arrays) or new factories
+of their own: MM:TEXTURE_ANIMATION (191), MM:KEYFRAME_SKELETON and
+MM:KEYFRAME_ANIMATION (6 each), MM:TEXT (2).
 
-Full breakdown, diagnoses, and what is deferred and why: **[docs/mm-status.md](docs/mm-status.md)**.
+### The reference is not stock
+
+It is built from `briaguya0/2ship2harkinian` `deterministic-extraction`
+(`95a0b33eb`), which carries two fixes without which the archive is not
+reproducible at all — ZAPD writes uninitialized memory into it:
+
+| Fix | What it was | Affected |
+|-----|-------------|---------:|
+| ZAPDTR `be1c68a` (#37) | `ZLimb`'s `totalVtxCount`/`dlist` uninitialized | 1929 limbs |
+| `briaguya0/OTRExporter` `deterministic-arrays` | `ZArray` casts Pointer/CollisionPoly elements to `ZScalar` and writes the uninitialized `scalarType` | 3 arrays |
+
+Rebuilding the manifest from an upstream-built o2r reintroduces both, and the
+mismatches look like Torch regressions. See
+[docs/decisions.md](docs/decisions.md) 38.
+
+### Not done yet
+
+- **GC US (`ntsc_u_gc`, sha1 `9743aa02`).** A second target, and the payoff for
+  emitting segment bases as DMA file *names* — the YAML tree should carry over
+  unchanged. No manifest yet. GC JP is out of scope; it is not in
+  `supportedHashes.json`.
+- **The `zelda64/` namespace refactor.** MM currently runs through factories
+  named `OoT*`, which is now the wrong name for shared code.
 
 | Doc | What's in it |
 |-----|--------------|
 | [docs/2ship-plan.md](docs/2ship-plan.md) | the plan, in phases |
 | [docs/decisions.md](docs/decisions.md) | decisions and the options not taken |
-| [docs/mm-status.md](docs/mm-status.md) | current scoreboard and remaining gaps |
-| [docs/mm-remaining-work.md](docs/mm-remaining-work.md) | plan for the remaining 1600, diagnosed and ordered |
+| [docs/mm-status.md](docs/mm-status.md) | final scoreboard, per type |
+| [docs/mm-remaining-work.md](docs/mm-remaining-work.md) | how the last 93 were diagnosed and closed |
 | [docs/mm-dma.md](docs/mm-dma.md) | where the DMA offsets come from, and how they're verified |
 | [docs/mm-yar-archives.md](docs/mm-yar-archives.md) | the CmpDma container format under `archives/` |
 
@@ -133,9 +159,10 @@ python3 tools/zapd_to_torch.py \
     --out-dir assets/yml/ntsc_u
 ```
 
-The XML declares 23473 assets; the reference holds 50496. The rest — Vtx arrays,
+The XML declares 23477 assets; the reference holds 50496. The rest — Vtx arrays,
 child DLists, limbs, skeletons, animations, collision — are recovered from the
-reference by `generate_supplemental.py`. Without it most of the archive is missing.
+reference by `generate_supplemental.py`, which adds 23329 more. Without it most
+of the archive is missing.
 
 ### 4. Score
 

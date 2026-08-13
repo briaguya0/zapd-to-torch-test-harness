@@ -1,12 +1,16 @@
 # Finishing MM extraction: the last 93 assets
 
+**Done — this is history, not a to-do list.** Extraction is at 50496 / 50496; the
+scoreboard is in [mm-status.md](mm-status.md). Kept for the diagnoses and for the
+process rules below, which were written mid-effort and earned their place.
+
 Supersedes the earlier phase A/B/C plan, whose phases are all complete. That
 history is in `decisions.md` and the commit messages.
 
-## Context
+## Context (as of when this was written)
 
-MM extraction is at **50403 / 50496 byte-identical (99.8%)**, with OoT held at
-35386/0 throughout. What remains is **74 mismatched + 19 never generated = 93
+MM extraction was at **50403 / 50496 byte-identical (99.8%)**, with OoT held at
+35386/0 throughout. What remained was **74 mismatched + 19 never generated = 93
 assets, 0.18%**.
 
 This plan exists because the last stretch went badly. Everything up to display

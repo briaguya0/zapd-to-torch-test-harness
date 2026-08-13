@@ -4,94 +4,94 @@ Measured with `./tools/score.sh` against `manifests/ntsc_u.json` (50496 assets f
 the OTRExporter reference for NTSC-U 1.0).
 
 ```
-generated 49354 of 50496 reference assets
-  PASS  50489      (99.99%)
-  FAIL      3
+generated 50496 of 50496 reference assets
+  PASS  50496
+  FAIL      0
   EXTRA     0
-  not generated  20
 ```
 
-Reference rebuilt from `briaguya0/2ship2harkinian` `deterministic-extraction`
-(`a4a426c6f`), which bumps ZAPDTR past `be1c68a` (#37). That changed 2181 assets in
-the reference itself — 1929 limbs, 251 rooms, 1 array — and the 1929 is exactly the
-set of limbs that had been unmatchable.
+**Complete.** Every asset in the reference archive is reproduced byte for byte.
 
 OoT is unaffected throughout: `./tools/oot_gate.sh pal_gc` → 35386 matching, 0
 mismatched, 0 not generated, 0 extra.
 
-## Passing outright
+## The reference is not stock
 
-These types come out byte-identical using the **Ocarina of Time factories,
-unmodified**. Majora's Mask runs on the same engine and shares the formats, which
-is the evidence for moving them to a shared `zelda64/` namespace (plan phase 2)
-rather than writing MM copies.
+Built from `briaguya0/2ship2harkinian` `deterministic-extraction` (`95a0b33eb`).
+Two ZAPD fixes are load-bearing, because without them the reference is not
+reproducible at all — it contains uninitialized memory:
+
+| Fix | What it was | Affected |
+|-----|-------------|---------:|
+| ZAPDTR `be1c68a` (#37) | `ZLimb`'s `SkinAnimatedLimbData::totalVtxCount` had no initializer, and `SkeletonLimbExporter` writes it for every limb regardless of type | 1929 limbs |
+| `briaguya0/OTRExporter` `deterministic-arrays` | `ZArray` sends any non-Vertex/Vector element through a branch that casts it to `ZScalar` and writes the uninitialized `scalarType` | 3 arrays |
+
+Both were found the same way: our output was stable and the reference's was not.
+No amount of matching fixes that — see [decisions.md](decisions.md) 38.
+
+## Final scoreboard
 
 | Type | Passing |
 |------|--------:|
-| TEXTURE | 13542 / 13542 |
-| MM:ANIMATION | 1755 / 1755 |
-| MM:PLAYER_ANIMATION | 695 / 695 |
-| MM:PLAYER_ANIMATION_DATA | 695 / 695 |
-| MM:MTX | 11 / 11 |
-| MM:CURVE_ANIMATION | 3 / 3 |
-| MM:AUDIO | 1 / 1 |
-| GFX | 13023 / 13461 |
-| MM:ARRAY | 10476 / 10477 |
-| MM:SKELETON | 213 / 214 |
-| MM:LIMB | 3495 / 3495 |
-| MM:PATH | 688 / 688 |
-| MM:TEXTURE_ANIMATION | 293 / 293 |
-| MM:CUTSCENE | 421 / 421 |
-| MM:ROOM | 582 / 595 |
-| MM:COLLISION | 286 / 290 |
-| BLOB | 234 |
+| TEXTURE | 13542 |
+| GFX | 13462 |
+| MM:ARRAY | 10481 |
+| *(undeclared type)* | 3690 |
+| MM:LIMB | 3495 |
+| MM:ANIMATION | 1755 |
+| BLOB | 1029 |
+| MM:PLAYER_ANIMATION_DATA | 695 |
+| MM:PLAYER_ANIMATION | 695 |
+| MM:ROOM | 414 |
+| MM:CUTSCENE | 301 |
+| MM:COLLISION | 290 |
+| MM:SKELETON | 214 |
+| MM:TEXTURE_ANIMATION | 191 |
+| MM:MTX | 122 |
+| MM:SCENE | 102 |
+| MM:KEYFRAME_ANIMATION | 6 |
+| MM:KEYFRAME_SKELETON | 6 |
+| MM:CURVE_ANIMATION | 3 |
+| MM:TEXT | 2 |
+| MM:AUDIO | 1 |
+| **Total** | **50496** |
 
-## Remaining failures
+`score.sh` attributes each asset to the type that declared it. The 3690 with no
+declared type are assets Torch creates during extraction rather than from a YAML
+declaration — scene `Set_` alternate headers and the paths the scene factory
+discovers from scene commands, mostly. They are compared like everything else.
 
-| Type | Failing | Diagnosis |
-|------|--------:|-----------|
-| GFX | 438 | not yet diagnosed |
-| MM:ROOM | 13 | scenes only; all 414 rooms pass |
-| MM:SCENE | 102 | MM's scene command set diverges from OoT's; see paths below |
-| MM:CUTSCENE | 318 | MM cutscene command set differs from OoT's; they are correctly named now and therefore compared, where before they were extras or missing |
-| MM:COLLISION | 4 | not yet diagnosed |
-| MM:TEXT | 2 | MM's message format differs from OoT's |
-| MM:ARRAY | 1 | not yet diagnosed |
-| MM:SKELETON | 1 | not yet diagnosed |
+## What needed what
 
-### MM:LIMB — resolved
+Nothing here is a separate MM factory tree. MM runs the same engine and shares
+most formats with OoT, which is the argument for a shared `zelda64/` namespace
+rather than MM copies.
 
-`SkinAnimatedLimbData::totalVtxCount` had no initializer, and `SkeletonLimbExporter`
-writes it for every limb regardless of type, so a Standard limb — which never
-populates `segmentStruct` — emitted whatever was in memory. ZAPDTR `be1c68a` (#37)
-gives it `= 0`.
+**Passed on OoT's factories with no changes:** TEXTURE, MM:ANIMATION,
+MM:PLAYER_ANIMATION and its data, MM:CURVE_ANIMATION, MM:AUDIO.
 
-The old reference's Standard limbs carried 0 on 1479 of 3495 (those matched) and
-varying values in runs on the rest. With the rebuilt reference **MM:LIMB is
-3495/3495**. Nothing in torch changed — the reference was non-deterministic, and no
-amount of matching would have fixed it.
+**Needed MM behaviour inside the shared factory:** scenes and rooms (MM's command
+set diverges — `SetRoomBehavior` field packing, `_room_00` padding, the reused
+`0x19` opcode, commands `0x1A`–`0x1F`), cutscenes (a different command set and
+different entry sizes), collision (surface types always emitted), skeletons
+(header limb count vs table length), display lists, and arrays (Scalar,
+CollisionPoly and Pointer element kinds).
 
-The whole diff is a single `uint16` at body offset 6, `skinVtxCnt`. Torch writes 0;
-the reference writes a nonzero value on limbs whose type does not use the field.
+**Needed a new factory:** MM:TEXTURE_ANIMATION (`OTAN`), MM:KEYFRAME_SKELETON and
+MM:KEYFRAME_ANIMATION (`OKFS`/`OKFA`), MM:TEXT (`OTXM`).
 
-## Deferred, with reasons
+## Two quirks reproduced on purpose
 
-- **MM:PATH (688 assets).** Declaring them from supplemental aborts extraction: the
-  factory needs `num_paths`, which OoT recovered by scanning scene commands, and
-  without it follows a garbage pointer. They are in `DEFERRED_TYPES` in
-  `generate_supplemental.py`.
+Matching means reproducing what ZAPD does, including where it is arguably wrong:
 
-  Deferring does **not** remove them from the output — the scene factory discovers
-  paths from scene commands on its own, and 522 of those come out wrong. So paths
-  are not a supplemental problem so much as a scene-command problem, and they land
-  with the MM:ROOM / MM:SCENE work rather than beside it.
-- **Arrays of unsupported element kinds (4 in XML, 2 in the reference).**
-  `Pointer/Gfx`, `Scalar/x8`, `CollisionPoly` — the array factory builds only VTX
-  and Vec3s. Skipped and tallied at both ends.
-- **Types with no Torch factory at all**, present in the reference and listed in
-  `UNSUPPORTED_RESOURCE_TYPES`: `OTAN` texture animation (293), `OKFA`/`OKFS`
-  keyframe animation and skeleton (6 each), `OTXM` MM text (2), and the audio set
-  `OSMP`/`OSEQ`/`OSFT`/`OAUD`.
+- **gSunDL's vertices disagree with the ROM by design.** ZAPD rewrites the `t`
+  coordinate of every vertex that display list loads —
+  `vtx.t = (((vtx.t >> 5) - 1) / 2) << 5` — to compensate for sun textures it
+  cannot extract whole. See [decisions.md](decisions.md) 39.
+- **A display list is exported twice under two names.**
+  `object_horse_link_child`'s skin-limb DL ships as a byte-identical duplicate
+  whose self-hash names the *original*. Torch's `duplicate_of` key says so
+  explicitly. See [decisions.md](decisions.md) 37.
 
 ## Reproducing
 
