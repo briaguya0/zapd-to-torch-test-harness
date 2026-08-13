@@ -51,6 +51,12 @@ rather than writing MM copies.
 | MM:SKELETON | 1 | not yet diagnosed |
 | EXTRA | 132 | generated but absent from the reference |
 
+> **Pending fix.** The limb and part of the room gap are ZAPD writing uninitialized
+> memory, fixed upstream by ZAPDTR `be1c68a` (#37) and picked up by
+> `briaguya0/2ship2harkinian` branch `deterministic-extraction`. These numbers are
+> against the old reference and should be re-measured once a reference is rebuilt
+> from that branch. See decisions 27 and 28.
+
 ### MM:LIMB — `skinVtxCnt` on limbs that should not have one
 
 The whole diff is a single `uint16` at body offset 6, `skinVtxCnt`. Torch writes 0;
@@ -69,11 +75,13 @@ Distribution across Standard limbs in the reference:
 ```
 
 The values vary rather than being one constant, and they appear in large runs. That
-is consistent with **ZAPD carrying a stale member across limbs** — the same class of
-behaviour the OoT work already had to reproduce for binary matching — but confirming
-it needs the limbs walked in ZAPD's processing order to show each run inherits the
-preceding Skin/Curve limb's count. Worth doing before writing any emulation, since
-guessing here produces 1929 plausibly-wrong assets.
+is stale memory. **Confirmed and fixed upstream**: `SkinAnimatedLimbData::totalVtxCount`
+had no initializer, and `SkeletonLimbExporter` writes it for every limb regardless of
+type, so a Standard limb — which never populates `segmentStruct` — emitted whatever
+was there. ZAPDTR `be1c68a` (#37) gives it `= 0`.
+
+This is not something torch should emulate: the reference itself was
+non-deterministic. It needs a rebuilt reference, not a matching bug.
 
 ## Deferred, with reasons
 

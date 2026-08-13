@@ -306,3 +306,35 @@ that the reference fills on limbs that have no such field, most likely ZAPD
 residue. Reproducing residue is guessable, and guessing wrong yields 1929
 plausible-looking wrong assets, so it waits for the ordering analysis that would
 confirm it.
+
+### 27. The ZAPD non-determinism fix already existed upstream
+
+The plan was to branch ZAPDTR/OTRExporter on the forks and fix the
+non-determinism ourselves. Checking first showed 2ship's pins are 4 and 3 commits
+behind their upstream `develop` branches, and one of those commits is exactly the
+fix: ZAPDTR `be1c68a` "initialize some uninitialized things" (#37), which gives
+`SkinAnimatedLimbData::totalVtxCount` a `= 0` default and does the same for
+`RoomShapeImageMultiBgEntry::unk_00`/`id` and `SetMesh::data`.
+
+So **no fork branches for ZAPDTR or OTRExporter were needed**. Only
+`briaguya0/2ship2harkinian` branch `deterministic-extraction`, which bumps both
+pins. Keeping our own fork of an already-fixed upstream would be divergence for
+nothing.
+
+Branched from `d35196ad7` — the commit the current reference was built from —
+rather than from develop tip, so a rebuilt reference differs by these fixes and
+nothing else and the re-measurement is attributable.
+
+*Not done:* a blanket sweep adding initializers to every uninitialized POD member
+in ZAPD. An audit found ~55 headers with them, but most are assigned during
+parsing and are not bugs. Fixing what the diffs actually evidence, then
+re-measuring against a clean reference, beats 200 speculative edits that would
+mask the real ones.
+
+### 28. Some room mismatches are ours, not ZAPD's
+
+Failing rooms differ in two ways at once: the reference contains garbage (`0xB8`
+where a zero belongs — ZAPD's, fixed by 27) *and* our output is one byte shorter,
+which is torch writing one fewer field. Only the first is addressed by the
+submodule bump. MM's room command set diverging from OoT's is still real work,
+and the rebuilt reference is what will separate the two.
