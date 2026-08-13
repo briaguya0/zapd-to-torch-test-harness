@@ -254,6 +254,10 @@ def convert_generic(elem):
         entry["num_paths"] = int(elem.get("NumPaths"))
     if elem.get("SkelOffset"):
         entry["skel_offset"] = hex_val(elem.get("SkelOffset"))
+    # A KeyFrameAnimation names its skeleton with `Skel`; the animation is sized
+    # by that skeleton's limb count and limb type.
+    if elem.get("Skel"):
+        entry["skel_offset"] = hex_val(elem.get("Skel"))
     if elem.tag == "LegacyAnimation":
         entry["anim_type"] = "legacy"
     if elem.get("CodeOffset"):
