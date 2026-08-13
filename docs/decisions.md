@@ -429,3 +429,65 @@ being recognised as the symptom they were.
 from the source, do not infer it. `rom_info.py`, `CmpDma_GetFileInfo` and
 `PathExporter.cpp` were all found that way; this was the one place it was
 skipped, and it was the one place that went badly.
+
+### 34. Deriving facts from names failed three times in one area; read the source instead
+
+The display-list endgame turned up three separate bugs with one shape: a fact was
+derived from a file *name* that MM does not encode the way OoT does.
+
+- **External files.** `archives/icon_item_static.xml` holds
+  `<File Name="icon_item_static_yar">`, so deriving the DMA name from the XML path
+  silently dropped the reference and every display list pointing into that file
+  failed to resolve. Read `File Name` from the referenced XML; the emitted yml path
+  follows `OutName`, not the XML stem.
+- **Segment number.** `generate_supplemental` used `"_scene" in dma_name` to pick
+  segment 2 vs 3. MM scene files carry no `_scene` suffix, so every scene was
+  scanned on the room segment.
+- **Which files to scan at all.** The same name test skipped every object, so
+  object display lists were never walked for matrices.
+
+All three now read the XML, which states each outright. This is the same rule that
+found the DMA offsets in `rom_info.py` and the pathway fields in
+`PathExporter.cpp`, and the same rule that was skipped when the cutscene command
+ids were inferred from enum ordering (33).
+
+*Corollary:* a matrix is named after the display list that reaches it, so roots
+have to carry their **declared** symbol. Synthesizing `<file>DL_<offset>` for
+XML-declared lists produced two extras rather than the two the reference has.
+
+### 35. Segment auto-adds must respect the file's own segment
+
+Torch treats a segment as an alias when a **lower-numbered** segment maps to the
+same file offset (`IsAliasSegment`, `OoTDListHelpers.cpp`), and emits `pointer + 1`
+rather than resolving. The converter auto-added segments 8–13 pointing at the file
+itself — an OoT convention for eye and mouth textures, harmless there because OoT
+objects sit on segment 6 with all of 8–13 above it.
+
+MM puts 24 mask objects on segment 10, so the auto-added 8 and 9 sat *underneath*
+the primary and made every vertex reference in those files look like an alias.
+Only segments above the file's own are added now.
+
+Worth recording for how long it hid: the answer was the **first branch** of
+`ExportVtx`, and its log line is `SPDLOG_INFO`, not `WARN`. The earlier
+investigation started in the middle of the function and worked outward, so that
+branch was never read, and its silence was taken as evidence the not-found branch
+was to blame. Read a function from the top before theorising about its middle.
+
+### 36. Virtual addresses were being resolved twice
+
+`ExportVtx` looked the vertex up with `GetNodeByAddr(ptr)` where `ptr` had already
+been through `PatchVirtualAddr`. `PatchVirtualAddr` *is* `ResolveVirtualAddr`, and
+`GetNodeByAddr` resolves again, so any file with a `virtual:` mapping had its vram
+base subtracted twice — turning a correct address into a miss that fell through to
+the unresolved-virtual-segment path. Look up the unpatched address.
+
+*Rejected first:* that `BaseAddress` corresponds to `RangeStart` rather than to
+file offset 0, so the virtual base needed `RangeStart` subtracted. Both attributes
+are present on every file that has either, which made it plausible. It broke
+overlays on the first run and was reverted — `BaseAddress` is the vram address of
+file offset 0 and `RangeStart` merely bounds what to extract.
+
+Instrumenting settled it in one line: `w1=0x801BA550` resolved to `ptr=0x80114A90`,
+exactly where the array is registered, immediately followed by `direct lookup
+miss`. That is rule 3 of the endgame plan working as intended, after rule 3 was
+written *because* the previous stretch ignored it.
