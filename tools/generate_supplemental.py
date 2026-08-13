@@ -390,7 +390,10 @@ def scan_scene_commands(data, offset):
     return commands
 
 
-def extract_from_rom(rom_data, dma, dma_to_path):
+G_DL_F3DEX2 = 0xDE
+
+
+def extract_from_rom(rom_data, dma, dma_to_path, o2r_assets):
     """Extract Set_ headers and MTX from ROM."""
     assets = {}
     stats = {"set_count": 0, "mtx_count": 0, "files_scanned": 0}
@@ -414,12 +417,15 @@ def extract_from_rom(rom_data, dma, dma_to_path):
             compressed = rom_data[phys_start:phys_start + 1024 * 1024]
         file_data = yaz0_decompress(compressed)
 
-        seg_num = 2 if "_scene" in dma_name else 3
+        # MM scene files are named after the scene with no _scene suffix, so the
+        # OoT test ("_scene" in the name) put every scene on the room segment.
+        seg_num = 3 if "_room_" in dma_name else 2
         stats["files_scanned"] += 1
 
         commands = scan_scene_commands(file_data, 0)
 
         # Extract Set_ alternate headers
+        alt_header_offsets = []
         for cmd_id, w0, w1 in commands:
             if cmd_id != CMD_SET_ALTERNATE_HEADERS:
                 continue
@@ -447,7 +453,7 @@ def extract_from_rom(rom_data, dma, dma_to_path):
                 if "_room_" in dma_name:
                     # Room: seg 3 = room phys_start, seg 2 = scene phys_start
                     segments.append([3, f"0x{phys_start:08X}"])
-                    scene_name = re.sub(r"_room_\d+$", "_scene", dma_name)
+                    scene_name = re.sub(r"_room_\d+$", "", dma_name)
                     if scene_name in dma:
                         scene_phys = int(dma[scene_name]["phys_start"], 16)
                         segments.append([2, f"0x{scene_phys:08X}"])
@@ -468,81 +474,84 @@ def extract_from_rom(rom_data, dma, dma_to_path):
                 if not any(e["name"] == set_symbol for e in assets[file_key]):
                     assets[file_key].append(entry)
                     stats["set_count"] += 1
+                alt_header_offsets.append(ptr_offset)
             break
 
-        # Extract MTX from SetMesh DLists
-        for cmd_id, w0, w1 in commands:
+        # Alternate headers carry their own SetMesh, reaching display lists the
+        # primary header never points at. Scan those too, or their matrices are
+        # never declared and torch leaves the raw G_MTX command in the dlist.
+        all_commands = list(commands)
+        for alt_offset in alt_header_offsets:
+            all_commands.extend(scan_scene_commands(file_data, alt_offset))
+
+        # --- Matrices referenced from display lists ---
+        #
+        # Roots come from two places. SetMesh (primary and alternate headers)
+        # reaches the room's mesh lists, but not every display list is reachable
+        # that way: a declared one can sit outside the mesh entirely. The reference
+        # already names every display list it emitted, so its GFX entries are used
+        # as roots too. Missing those left 61 room matrices undeclared, and torch
+        # then leaves the raw G_MTX command in the dlist rather than an OTR
+        # reference, so the dlist mismatches as well.
+        dl_roots = []
+        for cmd_id, w0, w1 in all_commands:
             if cmd_id != CMD_SET_MESH:
                 continue
             mesh_seg = (w1 >> 24) & 0xFF
             mesh_offset = w1 & 0x00FFFFFF
-            if mesh_seg != seg_num:
-                continue
-            if mesh_offset + 12 > len(file_data):
+            if mesh_seg != seg_num or mesh_offset + 12 > len(file_data):
                 continue
 
             mesh_type = file_data[mesh_offset]
             num_entries = file_data[mesh_offset + 1]
+            # Type 0 entries are 8 bytes (opa, xlu). Type 2 -- cullable -- prefixes
+            # each with 8 bytes of culling data, so entries are 16 and the pointers
+            # sit at +8. Every MM room uses type 2.
+            if mesh_type not in (0, 2):
+                continue
+            entry_size = 16 if mesh_type == 2 else 8
+            dl_field = 8 if mesh_type == 2 else 0
 
-            if mesh_type == 0:
-                mesh_start = struct.unpack_from(">I", file_data, mesh_offset + 4)[0]
-                ms_offset = mesh_start & 0x00FFFFFF
-                for j in range(num_entries):
-                    entry_pos = ms_offset + j * 8
-                    if entry_pos + 8 > len(file_data):
-                        break
-                    opa_addr = struct.unpack_from(">I", file_data, entry_pos)[0]
-                    xlu_addr = struct.unpack_from(">I", file_data, entry_pos + 4)[0]
+            mesh_start = struct.unpack_from(">I", file_data, mesh_offset + 4)[0] & 0x00FFFFFF
+            for j in range(num_entries):
+                entry_pos = mesh_start + j * entry_size + dl_field
+                if entry_pos + 8 > len(file_data):
+                    break
+                for dl_addr in struct.unpack_from(">II", file_data, entry_pos):
+                    if dl_addr and ((dl_addr >> 24) & 0xFF) == seg_num:
+                        dl_roots.append(dl_addr & 0x00FFFFFF)
 
-                    for dl_addr in [opa_addr, xlu_addr]:
-                        if dl_addr == 0:
-                            continue
-                        dl_seg = (dl_addr >> 24) & 0xFF
-                        dl_offset = dl_addr & 0x00FFFFFF
-                        if dl_seg != seg_num:
-                            continue
+        for e in o2r_assets.get(file_key, []):
+            if e.get("type") == "GFX" and "offset" in e:
+                dl_roots.append(int(e["offset"], 16) & 0x00FFFFFF)
 
-                        # Walk DList + child DLists for G_MTX
-                        dl_queue = [(dl_offset, f"{dma_name}DL_{dl_offset:06X}")]
-                        visited = set()
-                        while dl_queue:
-                            cur_offset, cur_symbol = dl_queue.pop(0)
-                            if cur_offset in visited:
-                                continue
-                            visited.add(cur_offset)
-                            pos = cur_offset
-                            while pos + 8 <= len(file_data):
-                                dw0 = struct.unpack_from(">I", file_data, pos)[0]
-                                dw1 = struct.unpack_from(">I", file_data, pos + 4)[0]
-                                op = (dw0 >> 24) & 0xFF
-                                if op == G_ENDDL:
-                                    break
-                                if op == G_MTX_F3DEX2 and dw1 != 0:
-                                    mtx_seg = (dw1 >> 24) & 0xFF
-                                    mtx_offset = dw1 & 0x00FFFFFF
-                                    if mtx_seg == seg_num:
-                                        mtx_symbol = f"{cur_symbol}Mtx_000000"
-                                        entry = {
-                                            "name": mtx_symbol,
-                                            "type": "MM:MTX",
-                                            "offset": f"0x{mtx_offset:X}",
-                                            "symbol": mtx_symbol,
-                                        }
-                                        if file_key not in assets:
-                                            assets[file_key] = []
-                                        if not any(e["name"] == mtx_symbol for e in assets[file_key]):
-                                            assets[file_key].append(entry)
-                                            stats["mtx_count"] += 1
-                                # Follow G_DL child display lists
-                                G_DL_F3DEX2 = 0xDE
-                                if op == G_DL_F3DEX2 and dw1 != 0:
-                                    child_seg = (dw1 >> 24) & 0xFF
-                                    child_offset = dw1 & 0x00FFFFFF
-                                    if child_seg == seg_num:
-                                        child_symbol = f"{dma_name}DL_{child_offset:06X}"
-                                        dl_queue.append((child_offset, child_symbol))
-                                pos += 8
-            break
+        visited = set()
+        queue = [(o, f"{dma_name}DL_{o:06X}") for o in dl_roots]
+        while queue:
+            cur_offset, cur_symbol = queue.pop(0)
+            if cur_offset in visited:
+                continue
+            visited.add(cur_offset)
+            pos = cur_offset
+            while pos + 8 <= len(file_data):
+                dw0, dw1 = struct.unpack_from(">II", file_data, pos)
+                op = (dw0 >> 24) & 0xFF
+                if op == G_ENDDL:
+                    break
+                if op == G_MTX_F3DEX2 and dw1 != 0 and ((dw1 >> 24) & 0xFF) == seg_num:
+                    mtx_symbol = f"{cur_symbol}Mtx_000000"
+                    if not any(e["name"] == mtx_symbol for e in assets.setdefault(file_key, [])):
+                        assets[file_key].append({
+                            "name": mtx_symbol,
+                            "type": "MM:MTX",
+                            "offset": f"0x{dw1 & 0x00FFFFFF:X}",
+                            "symbol": mtx_symbol,
+                        })
+                        stats["mtx_count"] += 1
+                if op == G_DL_F3DEX2 and dw1 != 0 and ((dw1 >> 24) & 0xFF) == seg_num:
+                    child = dw1 & 0x00FFFFFF
+                    queue.append((child, f"{dma_name}DL_{child:06X}"))
+                pos += 8
 
     return assets, stats
 
@@ -580,7 +589,7 @@ def main():
     # process them in the wrong context (without proper segment decompression).
     # They continue to be created via AddAsset at runtime.
     print("Extracting from ROM...", file=sys.stderr)
-    rom_assets, rom_stats = extract_from_rom(rom_data, dma, dma_to_path)
+    rom_assets, rom_stats = extract_from_rom(rom_data, dma, dma_to_path, o2r_assets)
     # Filter Set_ entries to only those that exist in the reference O2R.
     # Some alternate headers point to invalid data and are skipped by Torch's
     # try/catch at runtime. We exclude them to avoid crashes during pre-declaration.

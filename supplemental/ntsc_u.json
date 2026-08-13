@@ -80783,6 +80783,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -80803,6 +80807,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -80823,6 +80831,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -80843,6 +80855,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -80863,6 +80879,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -80883,6 +80903,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -80903,6 +80927,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -80923,6 +80951,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -80943,6 +80975,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -80963,6 +80999,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -80983,6 +81023,10 @@
         [
           3,
           "0x01E7A300"
+        ],
+        [
+          2,
+          "0x01E76C00"
         ]
       ]
     },
@@ -81894,6 +81938,10 @@
         [
           3,
           "0x019B4C60"
+        ],
+        [
+          2,
+          "0x019920E0"
         ]
       ]
     },
@@ -81914,6 +81962,10 @@
         [
           3,
           "0x019B4C60"
+        ],
+        [
+          2,
+          "0x019920E0"
         ]
       ]
     },
@@ -81934,6 +81986,10 @@
         [
           3,
           "0x019B4C60"
+        ],
+        [
+          2,
+          "0x019920E0"
         ]
       ]
     },
@@ -81954,6 +82010,10 @@
         [
           3,
           "0x019B4C60"
+        ],
+        [
+          2,
+          "0x019920E0"
         ]
       ]
     },
@@ -81974,6 +82034,10 @@
         [
           3,
           "0x019B4C60"
+        ],
+        [
+          2,
+          "0x019920E0"
         ]
       ]
     },
@@ -81994,6 +82058,10 @@
         [
           3,
           "0x019B4C60"
+        ],
+        [
+          2,
+          "0x019920E0"
         ]
       ]
     },
@@ -82014,6 +82082,10 @@
         [
           3,
           "0x019B4C60"
+        ],
+        [
+          2,
+          "0x019920E0"
         ]
       ]
     },
@@ -82034,6 +82106,10 @@
         [
           3,
           "0x019B4C60"
+        ],
+        [
+          2,
+          "0x019920E0"
         ]
       ]
     },
@@ -82054,6 +82130,10 @@
         [
           3,
           "0x019B4C60"
+        ],
+        [
+          2,
+          "0x019920E0"
         ]
       ]
     },
@@ -82063,6 +82143,18 @@
       "symbol": "Z2_00KEIKOKU_room_00ActorEntry_001EB8",
       "offset": "0x001EB8",
       "size": 0
+    },
+    {
+      "name": "Z2_00KEIKOKU_room_00DL_023028Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1F70",
+      "symbol": "Z2_00KEIKOKU_room_00DL_023028Mtx_000000"
+    },
+    {
+      "name": "Z2_00KEIKOKU_room_00DL_022B50Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1FB0",
+      "symbol": "Z2_00KEIKOKU_room_00DL_022B50Mtx_000000"
     },
     {
       "name": "Z2_00KEIKOKU_room_00DL_001FF0",
@@ -86263,6 +86355,10 @@
         [
           3,
           "0x01D075B0"
+        ],
+        [
+          2,
+          "0x01D02C10"
         ]
       ]
     },
@@ -86272,6 +86368,12 @@
       "symbol": "Z2_10YUKIYAMANOMURA2_room_00ActorEntry_000678",
       "offset": "0x000678",
       "size": 0
+    },
+    {
+      "name": "Z2_10YUKIYAMANOMURA2_room_00DL_00CE90Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xA30",
+      "symbol": "Z2_10YUKIYAMANOMURA2_room_00DL_00CE90Mtx_000000"
     },
     {
       "name": "Z2_10YUKIYAMANOMURA2_room_00DL_000A70",
@@ -87419,6 +87521,12 @@
       "height": 8
     },
     {
+      "name": "Z2_10YUKIYAMANOMURA2_room_00DL_01BAF0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1B2D0",
+      "symbol": "Z2_10YUKIYAMANOMURA2_room_00DL_01BAF0Mtx_000000"
+    },
+    {
       "name": "Z2_10YUKIYAMANOMURA2_room_00DL_01B310",
       "type": "GFX",
       "offset": "0x01B310",
@@ -87650,6 +87758,10 @@
         [
           3,
           "0x01D19A60"
+        ],
+        [
+          2,
+          "0x01D02C10"
         ]
       ]
     },
@@ -88990,6 +89102,10 @@
         [
           3,
           "0x01B645B0"
+        ],
+        [
+          2,
+          "0x01B5F3F0"
         ]
       ]
     },
@@ -90104,6 +90220,10 @@
         [
           3,
           "0x01B72B40"
+        ],
+        [
+          2,
+          "0x01B5F3F0"
         ]
       ]
     },
@@ -90314,6 +90434,10 @@
         [
           3,
           "0x01D27980"
+        ],
+        [
+          2,
+          "0x01D21CB0"
         ]
       ]
     },
@@ -90707,6 +90831,10 @@
         [
           3,
           "0x017EF7C0"
+        ],
+        [
+          2,
+          "0x017E8CC0"
         ]
       ]
     },
@@ -90955,6 +91083,10 @@
         [
           3,
           "0x01D1F090"
+        ],
+        [
+          2,
+          "0x01D1AB50"
         ]
       ]
     },
@@ -91348,6 +91480,10 @@
         [
           3,
           "0x019F7300"
+        ],
+        [
+          2,
+          "0x019EDDD0"
         ]
       ]
     },
@@ -91736,6 +91872,10 @@
         [
           3,
           "0x019FCDA0"
+        ],
+        [
+          2,
+          "0x019EDDD0"
         ]
       ]
     },
@@ -94938,6 +95078,12 @@
       "format": "RGBA16",
       "width": 4,
       "height": 4
+    },
+    {
+      "name": "Z2_20SICHITAI_room_00DL_01C9C0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1B0E0",
+      "symbol": "Z2_20SICHITAI_room_00DL_01C9C0Mtx_000000"
     },
     {
       "name": "Z2_20SICHITAI_room_00DL_01B120",
@@ -98879,6 +99025,12 @@
       "height": 4
     },
     {
+      "name": "Z2_20SICHITAI2_room_00DL_01A480Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x19450",
+      "symbol": "Z2_20SICHITAI2_room_00DL_01A480Mtx_000000"
+    },
+    {
       "name": "Z2_20SICHITAI2_room_00DL_019490",
       "type": "GFX",
       "offset": "0x019490",
@@ -100744,6 +100896,12 @@
       "height": 32
     },
     {
+      "name": "Z2_20SICHITAI2_room_02DL_00C560Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xBF70",
+      "symbol": "Z2_20SICHITAI2_room_02DL_00C560Mtx_000000"
+    },
+    {
       "name": "Z2_20SICHITAI2_room_02DL_00BFB0",
       "type": "GFX",
       "offset": "0x00BFB0",
@@ -101075,6 +101233,10 @@
         [
           3,
           "0x01B444A0"
+        ],
+        [
+          2,
+          "0x01B3C830"
         ]
       ]
     },
@@ -101095,6 +101257,10 @@
         [
           3,
           "0x01B444A0"
+        ],
+        [
+          2,
+          "0x01B3C830"
         ]
       ]
     },
@@ -107409,6 +107575,10 @@
         [
           3,
           "0x01A4DC20"
+        ],
+        [
+          2,
+          "0x01A38440"
         ]
       ]
     },
@@ -107429,6 +107599,10 @@
         [
           3,
           "0x01A4DC20"
+        ],
+        [
+          2,
+          "0x01A38440"
         ]
       ]
     },
@@ -107438,6 +107612,144 @@
       "symbol": "Z2_30GYOSON_room_00ActorEntry_00172C",
       "offset": "0x00172C",
       "size": 0
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_018468Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1860",
+      "symbol": "Z2_30GYOSON_room_00DL_018468Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_018618Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x18A0",
+      "symbol": "Z2_30GYOSON_room_00DL_018618Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_0187C8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x18E0",
+      "symbol": "Z2_30GYOSON_room_00DL_0187C8Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_018978Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1920",
+      "symbol": "Z2_30GYOSON_room_00DL_018978Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_018B28Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1960",
+      "symbol": "Z2_30GYOSON_room_00DL_018B28Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_018CD8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x19A0",
+      "symbol": "Z2_30GYOSON_room_00DL_018CD8Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_018E88Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x19E0",
+      "symbol": "Z2_30GYOSON_room_00DL_018E88Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_019038Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1A20",
+      "symbol": "Z2_30GYOSON_room_00DL_019038Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_0191E8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1A60",
+      "symbol": "Z2_30GYOSON_room_00DL_0191E8Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_019398Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1AA0",
+      "symbol": "Z2_30GYOSON_room_00DL_019398Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_019548Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1AE0",
+      "symbol": "Z2_30GYOSON_room_00DL_019548Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_0196F8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1B20",
+      "symbol": "Z2_30GYOSON_room_00DL_0196F8Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_0198A8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1B60",
+      "symbol": "Z2_30GYOSON_room_00DL_0198A8Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_019A58Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1BA0",
+      "symbol": "Z2_30GYOSON_room_00DL_019A58Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_019C08Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1BE0",
+      "symbol": "Z2_30GYOSON_room_00DL_019C08Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_019DB8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1C20",
+      "symbol": "Z2_30GYOSON_room_00DL_019DB8Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_019F68Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1C60",
+      "symbol": "Z2_30GYOSON_room_00DL_019F68Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_01A118Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1CA0",
+      "symbol": "Z2_30GYOSON_room_00DL_01A118Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_01A2C8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1CE0",
+      "symbol": "Z2_30GYOSON_room_00DL_01A2C8Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_01A478Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1D20",
+      "symbol": "Z2_30GYOSON_room_00DL_01A478Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_01A628Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1D60",
+      "symbol": "Z2_30GYOSON_room_00DL_01A628Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_01ADC0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1DA0",
+      "symbol": "Z2_30GYOSON_room_00DL_01ADC0Mtx_000000"
+    },
+    {
+      "name": "Z2_30GYOSON_room_00DL_01AF90Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1DE0",
+      "symbol": "Z2_30GYOSON_room_00DL_01AF90Mtx_000000"
     },
     {
       "name": "Z2_30GYOSON_room_00DL_001E20",
@@ -110635,6 +110947,10 @@
         [
           3,
           "0x01A6D6A0"
+        ],
+        [
+          2,
+          "0x01A5B440"
         ]
       ]
     },
@@ -110644,6 +110960,114 @@
       "symbol": "Z2_31MISAKI_room_00ActorEntry_0007B8",
       "offset": "0x0007B8",
       "size": 0
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_013238Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xC10",
+      "symbol": "Z2_31MISAKI_room_00DL_013238Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_013408Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xC50",
+      "symbol": "Z2_31MISAKI_room_00DL_013408Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_0135D8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xC90",
+      "symbol": "Z2_31MISAKI_room_00DL_0135D8Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_0137A8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xCD0",
+      "symbol": "Z2_31MISAKI_room_00DL_0137A8Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_013978Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xD10",
+      "symbol": "Z2_31MISAKI_room_00DL_013978Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_013B48Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xD50",
+      "symbol": "Z2_31MISAKI_room_00DL_013B48Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_013D18Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xD90",
+      "symbol": "Z2_31MISAKI_room_00DL_013D18Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_013EE8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xDD0",
+      "symbol": "Z2_31MISAKI_room_00DL_013EE8Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_0140B8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xE10",
+      "symbol": "Z2_31MISAKI_room_00DL_0140B8Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_014288Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xE50",
+      "symbol": "Z2_31MISAKI_room_00DL_014288Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_0149F0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xE90",
+      "symbol": "Z2_31MISAKI_room_00DL_0149F0Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_014B90Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xED0",
+      "symbol": "Z2_31MISAKI_room_00DL_014B90Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_014D30Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xF10",
+      "symbol": "Z2_31MISAKI_room_00DL_014D30Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_014ED0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xF50",
+      "symbol": "Z2_31MISAKI_room_00DL_014ED0Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_015070Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xF90",
+      "symbol": "Z2_31MISAKI_room_00DL_015070Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_015210Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xFD0",
+      "symbol": "Z2_31MISAKI_room_00DL_015210Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_0153B0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1010",
+      "symbol": "Z2_31MISAKI_room_00DL_0153B0Mtx_000000"
+    },
+    {
+      "name": "Z2_31MISAKI_room_00DL_015550Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1050",
+      "symbol": "Z2_31MISAKI_room_00DL_015550Mtx_000000"
     },
     {
       "name": "Z2_31MISAKI_room_00DL_001090",
@@ -113532,6 +113956,10 @@
         [
           3,
           "0x01A0C2A0"
+        ],
+        [
+          2,
+          "0x01A003F0"
         ]
       ]
     },
@@ -119298,6 +119726,10 @@
         [
           3,
           "0x01E46670"
+        ],
+        [
+          2,
+          "0x01E3A8D0"
         ]
       ]
     },
@@ -120686,6 +121118,24 @@
       "height": 32
     },
     {
+      "name": "Z2_BANDROOM_room_00DL_00C768Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xBE10",
+      "symbol": "Z2_BANDROOM_room_00DL_00C768Mtx_000000"
+    },
+    {
+      "name": "Z2_BANDROOM_room_00DL_00C5E8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xBE50",
+      "symbol": "Z2_BANDROOM_room_00DL_00C5E8Mtx_000000"
+    },
+    {
+      "name": "Z2_BANDROOM_room_00DL_00C468Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xBE90",
+      "symbol": "Z2_BANDROOM_room_00DL_00C468Mtx_000000"
+    },
+    {
       "name": "Z2_BANDROOM_room_00Vtx_00BED0",
       "type": "MM:ARRAY",
       "offset": "0x00BED0",
@@ -121095,6 +121545,24 @@
       "format": "CI8",
       "width": 16,
       "height": 64
+    },
+    {
+      "name": "Z2_BANDROOM_room_01DL_007610Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x6AE0",
+      "symbol": "Z2_BANDROOM_room_01DL_007610Mtx_000000"
+    },
+    {
+      "name": "Z2_BANDROOM_room_01DL_007490Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x6B20",
+      "symbol": "Z2_BANDROOM_room_01DL_007490Mtx_000000"
+    },
+    {
+      "name": "Z2_BANDROOM_room_01DL_007310Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x6B60",
+      "symbol": "Z2_BANDROOM_room_01DL_007310Mtx_000000"
     },
     {
       "name": "Z2_BANDROOM_room_01Vtx_006BA0",
@@ -122418,6 +122886,12 @@
       "size": 0
     },
     {
+      "name": "Z2_BOMYA_room_00DL_002C68Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1D0",
+      "symbol": "Z2_BOMYA_room_00DL_002C68Mtx_000000"
+    },
+    {
       "name": "Z2_BOMYA_room_00Vtx_000210",
       "type": "MM:ARRAY",
       "offset": "0x000210",
@@ -122554,6 +123028,30 @@
       "type": "GFX",
       "offset": "0x007508",
       "symbol": "Z2_BOMYA_room_00DL_007508"
+    },
+    {
+      "name": "Z2_BOMYA_room_00DL_007BA0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x7560",
+      "symbol": "Z2_BOMYA_room_00DL_007BA0Mtx_000000"
+    },
+    {
+      "name": "Z2_BOMYA_room_00DL_007A20Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x75A0",
+      "symbol": "Z2_BOMYA_room_00DL_007A20Mtx_000000"
+    },
+    {
+      "name": "Z2_BOMYA_room_00DL_0078A0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x75E0",
+      "symbol": "Z2_BOMYA_room_00DL_0078A0Mtx_000000"
+    },
+    {
+      "name": "Z2_BOMYA_room_00DL_007720Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x7620",
+      "symbol": "Z2_BOMYA_room_00DL_007720Mtx_000000"
     },
     {
       "name": "Z2_BOMYA_room_00Vtx_007660",
@@ -122889,6 +123387,10 @@
         [
           3,
           "0x01AF3BD0"
+        ],
+        [
+          2,
+          "0x01AE8AB0"
         ]
       ]
     },
@@ -123687,6 +124189,10 @@
         [
           3,
           "0x01AFA430"
+        ],
+        [
+          2,
+          "0x01AE8AB0"
         ]
       ]
     },
@@ -127373,6 +127879,10 @@
         [
           3,
           "0x01E61E30"
+        ],
+        [
+          2,
+          "0x01E4A8A0"
         ]
       ]
     },
@@ -127393,6 +127903,10 @@
         [
           3,
           "0x01E61E30"
+        ],
+        [
+          2,
+          "0x01E4A8A0"
         ]
       ]
     },
@@ -127413,6 +127927,10 @@
         [
           3,
           "0x01E61E30"
+        ],
+        [
+          2,
+          "0x01E4A8A0"
         ]
       ]
     },
@@ -127422,6 +127940,48 @@
       "symbol": "Z2_CLOCKTOWER_room_00ActorEntry_000678",
       "offset": "0x000678",
       "size": 0
+    },
+    {
+      "name": "Z2_CLOCKTOWER_room_00DL_00C5E8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x850",
+      "symbol": "Z2_CLOCKTOWER_room_00DL_00C5E8Mtx_000000"
+    },
+    {
+      "name": "Z2_CLOCKTOWER_room_00DL_00C468Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x890",
+      "symbol": "Z2_CLOCKTOWER_room_00DL_00C468Mtx_000000"
+    },
+    {
+      "name": "Z2_CLOCKTOWER_room_00DL_00C2E8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x8D0",
+      "symbol": "Z2_CLOCKTOWER_room_00DL_00C2E8Mtx_000000"
+    },
+    {
+      "name": "Z2_CLOCKTOWER_room_00DL_00C168Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x910",
+      "symbol": "Z2_CLOCKTOWER_room_00DL_00C168Mtx_000000"
+    },
+    {
+      "name": "Z2_CLOCKTOWER_room_00DL_00BFE8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x950",
+      "symbol": "Z2_CLOCKTOWER_room_00DL_00BFE8Mtx_000000"
+    },
+    {
+      "name": "Z2_CLOCKTOWER_room_00DL_00BE68Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x990",
+      "symbol": "Z2_CLOCKTOWER_room_00DL_00BE68Mtx_000000"
+    },
+    {
+      "name": "Z2_CLOCKTOWER_room_00DL_00BCE8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x9D0",
+      "symbol": "Z2_CLOCKTOWER_room_00DL_00BCE8Mtx_000000"
     },
     {
       "name": "Z2_CLOCKTOWER_room_00DL_000A10",
@@ -138228,6 +138788,10 @@
         [
           3,
           "0x01AAD0C0"
+        ],
+        [
+          2,
+          "0x01AA2040"
         ]
       ]
     },
@@ -139583,6 +140147,10 @@
         [
           3,
           "0x01A2FD20"
+        ],
+        [
+          2,
+          "0x01A1C740"
         ]
       ]
     },
@@ -139603,6 +140171,10 @@
         [
           3,
           "0x01A2FD20"
+        ],
+        [
+          2,
+          "0x01A1C740"
         ]
       ]
     },
@@ -139623,6 +140195,10 @@
         [
           3,
           "0x01A2FD20"
+        ],
+        [
+          2,
+          "0x01A1C740"
         ]
       ]
     },
@@ -139643,6 +140219,10 @@
         [
           3,
           "0x01A2FD20"
+        ],
+        [
+          2,
+          "0x01A1C740"
         ]
       ]
     },
@@ -139663,6 +140243,10 @@
         [
           3,
           "0x01A2FD20"
+        ],
+        [
+          2,
+          "0x01A1C740"
         ]
       ]
     },
@@ -139683,6 +140267,10 @@
         [
           3,
           "0x01A2FD20"
+        ],
+        [
+          2,
+          "0x01A1C740"
         ]
       ]
     },
@@ -140813,6 +141401,10 @@
         [
           3,
           "0x01AE65C0"
+        ],
+        [
+          2,
+          "0x01ADC970"
         ]
       ]
     },
@@ -144384,6 +144976,18 @@
       "symbol": "Z2_FISHERMAN_room_00DL_007140"
     },
     {
+      "name": "Z2_FISHERMAN_room_00DL_007B88Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x7190",
+      "symbol": "Z2_FISHERMAN_room_00DL_007B88Mtx_000000"
+    },
+    {
+      "name": "Z2_FISHERMAN_room_00DL_0079D8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x71D0",
+      "symbol": "Z2_FISHERMAN_room_00DL_0079D8Mtx_000000"
+    },
+    {
       "name": "Z2_FISHERMAN_room_00Vtx_007210",
       "type": "MM:ARRAY",
       "offset": "0x007210",
@@ -144715,6 +145319,10 @@
         [
           3,
           "0x01DFFDD0"
+        ],
+        [
+          2,
+          "0x01DF3BF0"
         ]
       ]
     },
@@ -152840,6 +153448,10 @@
         [
           3,
           "0x01E367F0"
+        ],
+        [
+          2,
+          "0x01E27310"
         ]
       ]
     },
@@ -154737,6 +155349,10 @@
         [
           3,
           "0x016FB410"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -154757,6 +155373,10 @@
         [
           3,
           "0x016FB410"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -154777,6 +155397,10 @@
         [
           3,
           "0x016FB410"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -154797,6 +155421,10 @@
         [
           3,
           "0x016FB410"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -156989,6 +157617,10 @@
         [
           3,
           "0x01716610"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157009,6 +157641,10 @@
         [
           3,
           "0x01716610"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157029,6 +157665,10 @@
         [
           3,
           "0x01716610"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157049,6 +157689,10 @@
         [
           3,
           "0x01716610"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157110,6 +157754,10 @@
         [
           3,
           "0x01716820"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157130,6 +157778,10 @@
         [
           3,
           "0x01716820"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157150,6 +157802,10 @@
         [
           3,
           "0x01716820"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157170,6 +157826,10 @@
         [
           3,
           "0x01716820"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157370,6 +158030,10 @@
         [
           3,
           "0x01718DA0"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157390,6 +158054,10 @@
         [
           3,
           "0x01718DA0"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157403,6 +158071,10 @@
         [
           3,
           "0x01718DA0"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157423,6 +158095,10 @@
         [
           3,
           "0x01718DA0"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157596,6 +158272,10 @@
         [
           3,
           "0x0171AD50"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157616,6 +158296,10 @@
         [
           3,
           "0x0171AD50"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157636,6 +158320,10 @@
         [
           3,
           "0x0171AD50"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -157656,6 +158344,10 @@
         [
           3,
           "0x0171AD50"
+        ],
+        [
+          2,
+          "0x016EC2F0"
         ]
       ]
     },
@@ -158806,6 +159498,10 @@
         [
           3,
           "0x01CCDC70"
+        ],
+        [
+          2,
+          "0x01CC6E00"
         ]
       ]
     },
@@ -158929,6 +159625,10 @@
         [
           3,
           "0x01CCEBB0"
+        ],
+        [
+          2,
+          "0x01CC6E00"
         ]
       ]
     },
@@ -164638,6 +165338,30 @@
       "height": 16
     },
     {
+      "name": "Z2_INSIDETOWER_room_00DL_00C370Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xBDA0",
+      "symbol": "Z2_INSIDETOWER_room_00DL_00C370Mtx_000000"
+    },
+    {
+      "name": "Z2_INSIDETOWER_room_00DL_00C210Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xBDE0",
+      "symbol": "Z2_INSIDETOWER_room_00DL_00C210Mtx_000000"
+    },
+    {
+      "name": "Z2_INSIDETOWER_room_00DL_00C0B0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xBE20",
+      "symbol": "Z2_INSIDETOWER_room_00DL_00C0B0Mtx_000000"
+    },
+    {
+      "name": "Z2_INSIDETOWER_room_00DL_00BF50Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xBE60",
+      "symbol": "Z2_INSIDETOWER_room_00DL_00BF50Mtx_000000"
+    },
+    {
       "name": "Z2_INSIDETOWER_room_00Vtx_00BEA0",
       "type": "MM:ARRAY",
       "offset": "0x00BEA0",
@@ -165244,6 +165968,10 @@
         [
           3,
           "0x0172C180"
+        ],
+        [
+          2,
+          "0x017203F0"
         ]
       ]
     },
@@ -165264,6 +165992,10 @@
         [
           3,
           "0x0172C180"
+        ],
+        [
+          2,
+          "0x017203F0"
         ]
       ]
     },
@@ -167779,6 +168511,12 @@
       "type": "GFX",
       "offset": "0x00D478",
       "symbol": "Z2_KAJIYA_room_00DL_00D478"
+    },
+    {
+      "name": "Z2_KAJIYA_room_00DL_00D810Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0xD540",
+      "symbol": "Z2_KAJIYA_room_00DL_00D810Mtx_000000"
     },
     {
       "name": "Z2_KAJIYA_room_00DL_00D580",
@@ -173138,6 +173876,10 @@
         [
           3,
           "0x01DE6640"
+        ],
+        [
+          2,
+          "0x01DE22D0"
         ]
       ]
     },
@@ -173158,6 +173900,10 @@
         [
           3,
           "0x01DE6640"
+        ],
+        [
+          2,
+          "0x01DE22D0"
         ]
       ]
     },
@@ -173178,6 +173924,10 @@
         [
           3,
           "0x01DE6640"
+        ],
+        [
+          2,
+          "0x01DE22D0"
         ]
       ]
     },
@@ -173198,6 +173948,10 @@
         [
           3,
           "0x01DE6640"
+        ],
+        [
+          2,
+          "0x01DE22D0"
         ]
       ]
     },
@@ -173218,6 +173972,10 @@
         [
           3,
           "0x01DE6640"
+        ],
+        [
+          2,
+          "0x01DE22D0"
         ]
       ]
     },
@@ -173238,6 +173996,10 @@
         [
           3,
           "0x01DE6640"
+        ],
+        [
+          2,
+          "0x01DE22D0"
         ]
       ]
     },
@@ -173258,6 +174020,10 @@
         [
           3,
           "0x01DE6640"
+        ],
+        [
+          2,
+          "0x01DE22D0"
         ]
       ]
     },
@@ -173278,6 +174044,10 @@
         [
           3,
           "0x01DE6640"
+        ],
+        [
+          2,
+          "0x01DE22D0"
         ]
       ]
     },
@@ -173298,6 +174068,10 @@
         [
           3,
           "0x01DE6640"
+        ],
+        [
+          2,
+          "0x01DE22D0"
         ]
       ]
     },
@@ -173318,6 +174092,10 @@
         [
           3,
           "0x01DE6640"
+        ],
+        [
+          2,
+          "0x01DE22D0"
         ]
       ]
     },
@@ -173795,6 +174573,18 @@
       "symbol": "Z2_LABO_room_00ActorEntry_00004C",
       "offset": "0x00004C",
       "size": 0
+    },
+    {
+      "name": "Z2_LABO_room_00DL_0049C0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x320",
+      "symbol": "Z2_LABO_room_00DL_0049C0Mtx_000000"
+    },
+    {
+      "name": "Z2_LABO_room_00DL_004B88Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x360",
+      "symbol": "Z2_LABO_room_00DL_004B88Mtx_000000"
     },
     {
       "name": "Z2_LABO_room_00Vtx_0003A0",
@@ -177208,6 +177998,10 @@
         [
           3,
           "0x01DADA10"
+        ],
+        [
+          2,
+          "0x01DA6040"
         ]
       ]
     },
@@ -177221,6 +178015,10 @@
         [
           3,
           "0x01DADA10"
+        ],
+        [
+          2,
+          "0x01DA6040"
         ]
       ]
     },
@@ -177234,6 +178032,10 @@
         [
           3,
           "0x01DADA10"
+        ],
+        [
+          2,
+          "0x01DA6040"
         ]
       ]
     },
@@ -177537,6 +178339,10 @@
         [
           3,
           "0x01DB3240"
+        ],
+        [
+          2,
+          "0x01DA6040"
         ]
       ]
     },
@@ -177550,6 +178356,10 @@
         [
           3,
           "0x01DB3240"
+        ],
+        [
+          2,
+          "0x01DA6040"
         ]
       ]
     },
@@ -177563,6 +178373,10 @@
         [
           3,
           "0x01DB3240"
+        ],
+        [
+          2,
+          "0x01DA6040"
         ]
       ]
     },
@@ -177892,6 +178706,10 @@
         [
           3,
           "0x01DBA170"
+        ],
+        [
+          2,
+          "0x01DA6040"
         ]
       ]
     },
@@ -177912,6 +178730,10 @@
         [
           3,
           "0x01DBA170"
+        ],
+        [
+          2,
+          "0x01DA6040"
         ]
       ]
     },
@@ -177932,6 +178754,10 @@
         [
           3,
           "0x01DBA170"
+        ],
+        [
+          2,
+          "0x01DA6040"
         ]
       ]
     },
@@ -178894,6 +179720,10 @@
         [
           3,
           "0x01739CF0"
+        ],
+        [
+          2,
+          "0x01731B10"
         ]
       ]
     },
@@ -178914,6 +179744,10 @@
         [
           3,
           "0x01739CF0"
+        ],
+        [
+          2,
+          "0x01731B10"
         ]
       ]
     },
@@ -178934,6 +179768,10 @@
         [
           3,
           "0x01739CF0"
+        ],
+        [
+          2,
+          "0x01731B10"
         ]
       ]
     },
@@ -178954,6 +179792,10 @@
         [
           3,
           "0x01739CF0"
+        ],
+        [
+          2,
+          "0x01731B10"
         ]
       ]
     },
@@ -183895,6 +184737,10 @@
         [
           3,
           "0x017A2360"
+        ],
+        [
+          2,
+          "0x01796310"
         ]
       ]
     },
@@ -183915,6 +184761,10 @@
         [
           3,
           "0x017A2360"
+        ],
+        [
+          2,
+          "0x01796310"
         ]
       ]
     },
@@ -183935,6 +184785,10 @@
         [
           3,
           "0x017A2360"
+        ],
+        [
+          2,
+          "0x01796310"
         ]
       ]
     },
@@ -185520,6 +186374,10 @@
         [
           3,
           "0x017A92E0"
+        ],
+        [
+          2,
+          "0x017A3540"
         ]
       ]
     },
@@ -185955,6 +186813,10 @@
         [
           3,
           "0x017AF620"
+        ],
+        [
+          2,
+          "0x017A3540"
         ]
       ]
     },
@@ -204184,6 +205046,30 @@
       "size": 0
     },
     {
+      "name": "Z2_SINKAI_room_00DL_0069A8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x460",
+      "symbol": "Z2_SINKAI_room_00DL_0069A8Mtx_000000"
+    },
+    {
+      "name": "Z2_SINKAI_room_00DL_006B40Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x4A0",
+      "symbol": "Z2_SINKAI_room_00DL_006B40Mtx_000000"
+    },
+    {
+      "name": "Z2_SINKAI_room_00DL_006CD8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x4E0",
+      "symbol": "Z2_SINKAI_room_00DL_006CD8Mtx_000000"
+    },
+    {
+      "name": "Z2_SINKAI_room_00DL_006E70Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x520",
+      "symbol": "Z2_SINKAI_room_00DL_006E70Mtx_000000"
+    },
+    {
       "name": "Z2_SINKAI_room_00Vtx_000560",
       "type": "MM:ARRAY",
       "offset": "0x000560",
@@ -206136,6 +207022,12 @@
       "type": "GFX",
       "offset": "0x0051F0",
       "symbol": "Z2_SOUGEN_room_00DL_0051F0"
+    },
+    {
+      "name": "Z2_SOUGEN_room_00DL_005A08Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x5230",
+      "symbol": "Z2_SOUGEN_room_00DL_005A08Mtx_000000"
     },
     {
       "name": "Z2_SOUGEN_room_00Vtx_005270",
@@ -208784,6 +209676,42 @@
       "size": 0
     },
     {
+      "name": "Z2_TENMON_DAI_room_01DL_007290Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x250",
+      "symbol": "Z2_TENMON_DAI_room_01DL_007290Mtx_000000"
+    },
+    {
+      "name": "Z2_TENMON_DAI_room_01DL_006E20Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x290",
+      "symbol": "Z2_TENMON_DAI_room_01DL_006E20Mtx_000000"
+    },
+    {
+      "name": "Z2_TENMON_DAI_room_01DL_0069B0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x2D0",
+      "symbol": "Z2_TENMON_DAI_room_01DL_0069B0Mtx_000000"
+    },
+    {
+      "name": "Z2_TENMON_DAI_room_01DL_006540Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x310",
+      "symbol": "Z2_TENMON_DAI_room_01DL_006540Mtx_000000"
+    },
+    {
+      "name": "Z2_TENMON_DAI_room_01DL_0060D0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x350",
+      "symbol": "Z2_TENMON_DAI_room_01DL_0060D0Mtx_000000"
+    },
+    {
+      "name": "Z2_TENMON_DAI_room_01DL_005C60Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x390",
+      "symbol": "Z2_TENMON_DAI_room_01DL_005C60Mtx_000000"
+    },
+    {
       "name": "Z2_TENMON_DAI_room_01Vtx_0003D0",
       "type": "MM:ARRAY",
       "offset": "0x0003D0",
@@ -209789,6 +210717,102 @@
       "symbol": "Z2_TORIDE_room_00ActorEntry_000058",
       "offset": "0x000058",
       "size": 0
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00A618Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x3B0",
+      "symbol": "Z2_TORIDE_room_00DL_00A618Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00A7C8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x3F0",
+      "symbol": "Z2_TORIDE_room_00DL_00A7C8Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00A978Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x430",
+      "symbol": "Z2_TORIDE_room_00DL_00A978Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00AB28Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x470",
+      "symbol": "Z2_TORIDE_room_00DL_00AB28Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00ACD8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x4B0",
+      "symbol": "Z2_TORIDE_room_00DL_00ACD8Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00AE88Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x4F0",
+      "symbol": "Z2_TORIDE_room_00DL_00AE88Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00B038Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x530",
+      "symbol": "Z2_TORIDE_room_00DL_00B038Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00B1E8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x570",
+      "symbol": "Z2_TORIDE_room_00DL_00B1E8Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00B398Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x5B0",
+      "symbol": "Z2_TORIDE_room_00DL_00B398Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00B548Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x5F0",
+      "symbol": "Z2_TORIDE_room_00DL_00B548Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00B6F8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x630",
+      "symbol": "Z2_TORIDE_room_00DL_00B6F8Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00B8A8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x670",
+      "symbol": "Z2_TORIDE_room_00DL_00B8A8Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00BA58Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x6B0",
+      "symbol": "Z2_TORIDE_room_00DL_00BA58Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00BC08Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x6F0",
+      "symbol": "Z2_TORIDE_room_00DL_00BC08Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00BDB8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x730",
+      "symbol": "Z2_TORIDE_room_00DL_00BDB8Mtx_000000"
+    },
+    {
+      "name": "Z2_TORIDE_room_00DL_00BF68Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x770",
+      "symbol": "Z2_TORIDE_room_00DL_00BF68Mtx_000000"
     },
     {
       "name": "Z2_TORIDE_room_00DL_0007B0",
@@ -212455,6 +213479,10 @@
         [
           3,
           "0x01E1D740"
+        ],
+        [
+          2,
+          "0x01E08320"
         ]
       ]
     },
@@ -212475,6 +213503,10 @@
         [
           3,
           "0x01E1D740"
+        ],
+        [
+          2,
+          "0x01E08320"
         ]
       ]
     },
@@ -212484,6 +213516,18 @@
       "symbol": "Z2_TOWN_room_00ActorEntry_000818",
       "offset": "0x000818",
       "size": 0
+    },
+    {
+      "name": "Z2_TOWN_room_00DL_00A3C8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x8E0",
+      "symbol": "Z2_TOWN_room_00DL_00A3C8Mtx_000000"
+    },
+    {
+      "name": "Z2_TOWN_room_00DL_004DD8Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x920",
+      "symbol": "Z2_TOWN_room_00DL_004DD8Mtx_000000"
     },
     {
       "name": "Z2_TOWN_room_00DL_000960",
@@ -215894,6 +216938,18 @@
       "size": 0
     },
     {
+      "name": "Z2_WITCH_SHOP_room_00DL_008B18Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x110",
+      "symbol": "Z2_WITCH_SHOP_room_00DL_008B18Mtx_000000"
+    },
+    {
+      "name": "Z2_WITCH_SHOP_room_00DL_008970Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x150",
+      "symbol": "Z2_WITCH_SHOP_room_00DL_008970Mtx_000000"
+    },
+    {
       "name": "Z2_WITCH_SHOP_room_00Vtx_000190",
       "type": "MM:ARRAY",
       "offset": "0x000190",
@@ -216178,6 +217234,12 @@
       "symbol": "Z2_WITCH_SHOP_room_00DL_009838"
     },
     {
+      "name": "Z2_WITCH_SHOP_room_00DL_009988Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x9880",
+      "symbol": "Z2_WITCH_SHOP_room_00DL_009988Mtx_000000"
+    },
+    {
       "name": "Z2_WITCH_SHOP_room_00DL_0098C0",
       "type": "GFX",
       "offset": "0x0098C0",
@@ -216408,6 +217470,10 @@
         [
           3,
           "0x01D66330"
+        ],
+        [
+          2,
+          "0x01D5DD90"
         ]
       ]
     },
@@ -217262,6 +218328,18 @@
       "height": 16
     },
     {
+      "name": "Z2_YADOYA_room_00DL_017288Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x16E20",
+      "symbol": "Z2_YADOYA_room_00DL_017288Mtx_000000"
+    },
+    {
+      "name": "Z2_YADOYA_room_00DL_017110Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x16E60",
+      "symbol": "Z2_YADOYA_room_00DL_017110Mtx_000000"
+    },
+    {
       "name": "Z2_YADOYA_room_00DL_016EA0",
       "type": "GFX",
       "offset": "0x016EA0",
@@ -217490,6 +218568,10 @@
         [
           3,
           "0x01D704B0"
+        ],
+        [
+          2,
+          "0x01D5DD90"
         ]
       ]
     },
@@ -217826,6 +218908,10 @@
         [
           3,
           "0x01D73C50"
+        ],
+        [
+          2,
+          "0x01D5DD90"
         ]
       ]
     },
@@ -218050,6 +219136,10 @@
         [
           3,
           "0x01D75FC0"
+        ],
+        [
+          2,
+          "0x01D5DD90"
         ]
       ]
     },
@@ -218262,6 +219352,10 @@
         [
           3,
           "0x01D77C20"
+        ],
+        [
+          2,
+          "0x01D5DD90"
         ]
       ]
     },
@@ -218776,6 +219870,10 @@
         [
           3,
           "0x018FF4B0"
+        ],
+        [
+          2,
+          "0x018EFCB0"
         ]
       ]
     },
@@ -218949,6 +220047,10 @@
         [
           3,
           "0x019017A0"
+        ],
+        [
+          2,
+          "0x018EFCB0"
         ]
       ]
     },
@@ -219115,6 +220217,10 @@
         [
           3,
           "0x01903A30"
+        ],
+        [
+          2,
+          "0x018EFCB0"
         ]
       ]
     },
@@ -219281,6 +220387,10 @@
         [
           3,
           "0x01905CB0"
+        ],
+        [
+          2,
+          "0x018EFCB0"
         ]
       ]
     },
@@ -219447,6 +220557,10 @@
         [
           3,
           "0x01907F50"
+        ],
+        [
+          2,
+          "0x018EFCB0"
         ]
       ]
     },
