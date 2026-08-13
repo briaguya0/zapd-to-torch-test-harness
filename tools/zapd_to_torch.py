@@ -738,8 +738,13 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
 
 # --- VTX discovery from reference O2R ---
 
-def add_undeclared_to_yaml(yaml_path, entries):
-    """Append undeclared asset entries to a YAML file."""
+def add_undeclared_to_yaml(yaml_path, entries, file_key=None):
+    """Append undeclared asset entries to a YAML file.
+
+    file_key is the asset directory the file's contents land in; needed only to
+    name a `duplicate_of` target. Most ymls leave `directory:` out of :config:
+    and let Torch derive it, so it cannot be read back out of the file.
+    """
     with open(yaml_path) as f:
         content = f.read()
 
@@ -750,12 +755,14 @@ def add_undeclared_to_yaml(yaml_path, entries):
     # emitting it as its own declaration would make Torch self-hash it under the
     # wrong name. Skip it and let Torch's mesh writer regenerate it as an alias.
     existing = set()
-    existing_slots = set()
+    existing_slots = {}
+    cur_name = None
     cur_type = None
     cur_offset = None
     for line in content.split("\n"):
         if line and not line.startswith(" ") and line.endswith(":") and line != ":config:":
-            existing.add(line[:-1])
+            cur_name = line[:-1]
+            existing.add(cur_name)
             cur_type = None
             cur_offset = None
         elif line.strip().startswith("type:"):
@@ -764,21 +771,36 @@ def add_undeclared_to_yaml(yaml_path, entries):
             cur_offset = line.split(":", 1)[1].strip()
             if cur_type is not None:
                 try:
-                    existing_slots.add((int(cur_offset, 16), cur_type))
+                    existing_slots.setdefault((int(cur_offset, 16), cur_type), cur_name)
                 except ValueError:
                     pass
+
+    directory = _read_yaml_config(yaml_path)["directory"] or file_key
 
     new_entries = []
     for entry in sorted(entries, key=lambda x: int(x["offset"], 16)):
         if entry["name"] in existing:
             continue
-        if (int(entry["offset"], 16), entry["type"]) in existing_slots:
-            continue
+        slot = (int(entry["offset"], 16), entry["type"])
+        duplicate_of = None
+        if slot in existing_slots:
+            # ...unless the reference archive actually contains both names. ZAPD
+            # emits object_horse_link_child's skin-limb display list twice, and the
+            # copy is byte-identical to the original -- including the self-hash,
+            # which names the original. Declare it, but tell Torch it is a copy so
+            # it neither claims the address nor hashes itself under its own name.
+            if not entry.get("in_reference"):
+                continue
+            if directory is None:
+                continue
+            duplicate_of = f"{directory}/{existing_slots[slot]}"
 
         lines = f'{entry["name"]}:\n'
         lines += f'  type: {entry["type"]}\n'
         lines += f'  offset: {entry["offset"]}\n'
         lines += f'  symbol: {entry["symbol"]}\n'
+        if duplicate_of:
+            lines += f'  duplicate_of: {duplicate_of}\n'
         # Type-specific fields
         if "count" in entry:
             lines += f'  count: {entry["count"]}\n'
@@ -981,7 +1003,7 @@ def add_supplemental_from_json(supplemental_json_path, yaml_dir):
                 normal_entries.append(entry)
 
         # Append normal entries to parent YAML
-        added = add_undeclared_to_yaml(yaml_path, normal_entries)
+        added = add_undeclared_to_yaml(yaml_path, normal_entries, file_key)
         if added > 0:
             total_added += added
             files_updated += 1

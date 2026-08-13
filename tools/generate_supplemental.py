@@ -294,6 +294,14 @@ def extract_from_o2r(zf):
         assets[file_key].append(entry)
         stats["extracted"] += 1
 
+    # Everything above was read out of the reference archive, so each of these
+    # names is an asset the reference actually contains. Entries from the rom
+    # scan are inferences and carry no such guarantee; the flag lets the yml
+    # writer tell the two apart when they collide with an XML declaration.
+    for entries in assets.values():
+        for entry in entries:
+            entry["in_reference"] = True
+
     return assets, stats
 
 
