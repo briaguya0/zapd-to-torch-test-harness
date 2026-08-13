@@ -1,221 +1,164 @@
-# Plan for the remaining 1600 failures
+# Finishing MM extraction: the last 93 assets
 
-Standing: **48892 pass, 780 fail, 0 extra** of 50496. Phase A is done except
-cutscenes: paths 688/688, rooms 414/414, scenes 168/181, and nothing is emitted
-that the reference does not have.
-Every figure below is measured, and each diagnosis names the source line it came
-from. See `mm-status.md` for the scoreboard and `decisions.md` for how we got here.
+Supersedes the earlier phase A/B/C plan, whose phases are all complete. That
+history is in `decisions.md` and the commit messages.
 
-## The shape of what's left
+## Context
 
-| Reference type | Failing | Size relationship | Cause |
-|----------------|--------:|-------------------|-------|
-| OROM (rooms) | 595 | 414 are **ours −1 byte**, rest vary | MM room commands torch does not implement |
-| ODLT (dlists) | 438 | 295 same size, 143 **ours −8** | two distinct issues, see below |
-| OSMP (samples) | 20 | — | audio; no MM factory |
-| OCVT (cutscenes) | 17 | — | MM cutscene commands |
-| OCOL (collision) | 4 | — | undiagnosed |
-| OTXM (MM text) | 2 | — | MM message format |
-| OARR / OSKL | 1 / 1 | — | undiagnosed |
-| **EXTRA** | 132 | all `CutsceneData` | we generate cutscenes the reference does not |
+MM extraction is at **50403 / 50496 byte-identical (99.8%)**, with OoT held at
+35386/0 throughout. What remains is **74 mismatched + 19 never generated = 93
+assets, 0.18%**.
 
-Rooms + paths + scenes + cutscenes + extras are **~1270 of the 1732 problems and
-they are one body of work**: MM's scene/room command set. That is the whole first
-phase.
+This plan exists because the last stretch went badly. Everything up to display
+lists was found by reading the source that already knew the answer —
+`rom_info.py` for the DMA offsets, `CmpDma_GetFileInfo` for the archive
+container, `PathExporter.cpp` for the pathway fields, `ZCutscene::GetCommandMM`
+for the cutscene shapes. The display-list work abandoned that and reverted to
+theorising from partial evidence, which produced two dead ends:
 
----
+- A **stale binary read as a segfault.** Build and measure were chained in one
+  command, so a no-op build looked identical to a good one, and success was
+  tested with `grep … || echo "still failing"` — which reports on grep matching,
+  not on the run succeeding. Working code was parked on a branch as unfixable.
+- **Enum values inferred from ordering** rather than read. Three of four cutscene
+  constants were wrong; `CS_CMD_PLAYER_CUE` is 200, not 300. The symptom — runs
+  of impossible "command id 0, zero entries" — was on screen a long time before
+  being recognised as a desync.
 
-## Phase A — MM scene and room commands
+It then ended mid-air on a contradiction that was stopped rather than resolved.
 
-The single highest-value change. Torch has OoT's command set; MM's differs at both
-ends.
+## Process rules for this phase
 
-### A1. The commands OoT does not have
+Not general advice; each is a specific lapse from the last stretch.
 
-From `ZAPDTR/ZAPD/ZRoom/ZRoomCommand.h`:
+1. **Build and measure as separate commands.** Never chain them. Check exit
+   status, never `grep … || echo "failed"`.
+2. **Read values, don't infer them.** Every constant comes from ZAPD/OTRExporter
+   source, quoted in the commit message.
+3. **Instrument before theorising.** When an observation contradicts the code,
+   add a log and run it. A long stretch of the last session went to reasoning
+   about a branch a single `SPDLOG` would have settled.
+4. **`./tools/oot_gate.sh pal_gc` after every torch change.** Non-negotiable —
+   all of this lives inside shared OoT code.
+5. One area per commit, with before/after counts.
 
-```
-SetWorldMapVisited      = 0x19   // OoT uses 0x19 for SetCameraSettings
-SetAnimatedMaterialList = 0x1A
-SetActorCutsceneList    = 0x1B
-SetMinimapList          = 0x1C
-SetMinimapChests        = 0x1E
-SetCutscenesMM          = 0x1F   // not a real opcode; ZAPD invents it for OTRs
-```
+## The remaining work
 
-`0x19` is a **reuse, not an addition** — writing OoT's `SetCameraSettings` there
-produces silent garbage rather than an error, so this needs care.
-
-### A2. Paths — DONE (688/688)
-
-Implemented in torch `aaa70f5`. Two changes, the second only visible after the
-first:
-
-1. MM carries `unk1`/`unk2` per pathway where OoT has padding — the three bytes
-   that made every failure short by a multiple of 3.
-2. OoT's alternate headers export only the first pathway of a shared list; MM
-   exports all. Instrumenting showed exactly 19 truncations against exactly 19
-   remaining failures.
-
-Both gated on a new `game:` key in the rom config (`OOT` default, `MM`), declared
-rather than sniffed. That key is now available for phases A1/A3/A4.
-
-`MM:PATH` stays in `DEFERRED_TYPES`, and that is now the correct permanent state
-rather than a workaround: all 688 paths come from the scene command writer as
-companion files, so declaring them from supplemental would be redundant.
-
-<details><summary>Original diagnosis</summary>
-
-`OTRExporter/PathExporter.cpp`:
-
-```cpp
-writer->Write((uint32_t)path->pathways[k].points.size());
-if (Globals::Instance->game == ZGame::MM_RETAIL) {
-    writer->Write(path->pathways[k].unk1);   // int8
-    writer->Write(path->pathways[k].unk2);   // int16
-}
-```
-
-Three extra bytes per pathway, which is exactly why every path is short by a
-multiple of 3 (a 24-pathway path is −72, a 9-pathway one is −27, and so on).
-
-Torch's `OoTPathFactory::parse` reads the 8-byte entry as
-`numPoints(u8) + 3 bytes padding + pointsAddr(u32)`. In MM those three "padding"
-bytes are `unk1` and `unk2`, and `ZPath.cpp:123-126` confirms they are read
-straight from ROM, so they are deterministic and simply need carrying through.
-
-</details>
-
-### A1/A3 — DONE (rooms 414/414, scenes 168/181)
-
-Implemented in torch `d1f22c6` and `7405193`. Five divergences, none of which was
-the one the plan guessed at:
-
-- **`SetRoomBehavior`** — OoT writes `gameplayFlags2` whole; MM unpacks it into the
-  five fields it encodes, six bytes against five. This was the entire "ours is one
-  byte short" on all 414 rooms.
-- **Room names** — MM zero-pads the index, `_room_00` not `_room_0`.
-- **`0x19`** — MM writes *no body*; torch was writing OoT's five bytes.
-- **`0x1A`/`0x1B`/`0x1C`/`0x1E`** — four commands OoT lacks. `SetMinimapList`
-  carries no count and takes one entry per room, so `SetRoomList` now records the
-  room count in the write context.
-- **`SetCutscenes`** — MM carries a list where OoT carries one pointer, and ZAPD
-  rewrites the opcode to `0x1F`. Entries name their cutscene off the scene's base
-  name, and a declared cutscene keeps its declared name.
-
-13 scenes remain, undiagnosed.
-
-### A4. Cutscene contents — 318 failing, now the largest category
-
-The naming half is fixed and extras are at zero, so every cutscene the reference
-has is now generated under the right name and compared. Their *contents* are still
-serialized with OoT's command set.
-
-The count rose from 17 as a direct result: those cutscenes previously had no
-correct name, so they counted as extras or as not-generated rather than as
-mismatches. This is progress made visible, not a regression.
-
-MM's command set is in `ZAPD/OtherStructs/CutsceneMM_Commands.h`, separate from
-`CutsceneOoT_Commands.h`. Torch's `CutsceneSerializer` implements OoT's.
-
-**Remaining phase A: cutscene contents (318) and 13 undiagnosed scenes.**
+| Area | Count | State |
+|------|------:|-------|
+| ODLT display lists | 33 | contradiction below — resolve first |
+| OSMP audio samples | 20 | undiagnosed |
+| OROM scenes | 13 | undiagnosed |
+| OKFA/OKFS keyframe | 12 | no factory; not generated |
+| OARR arrays | 4+1 | unsupported element kinds |
+| OCOL collision | 4 | undiagnosed |
+| OMTX matrices | 2 | in objects; the ROM scan only walks rooms/scenes |
+| OTXM MM text | 2 | MM message format |
+| ODLT / OSKL | 1+1 | undiagnosed |
 
 ---
 
-## Phase B — Display lists (33 left of 438)
+## Step 1 — Resolve the display-list contradiction (33)
 
-Most of this is done; see the git history. What remains:
+25 `object_mask_*` files with one display list each, 2 in `object_dog`, 6 in
+`code/`. All are an unresolved `G_VTX`: torch emits the raw opcode with
+`(ptr & 0x0FFFFFFF) + 1` where the reference emits `G_VTX_OTR_HASH` plus the
+vertex's CRC64.
 
-**25 `object_mask_*` files, one display list each, plus 2 in object_dog and 6 in
-`code/`.** All are an unresolved `G_VTX`: torch emits the raw opcode with
-`(ptr & 0x0FFFFFFF) + 1`, where the reference emits `G_VTX_OTR_HASH` plus the
-vertex asset's CRC64.
+Three observations that cannot all be true:
 
-The confusing part, and where to pick this up: **the vertex is declared and the
-lookup does not report a miss.** For `object_mask_bakuretu_DL_000440` the target
-is `object_mask_bakuretuVtx_000250`, which we generate, declared as `MM:ARRAY`
-`offset: 0x000250` `array_type: VTX` on segment 10 — the same segment the display
-list is on. `ExportVtx`'s not-found branch in `OoTDListHelpers.cpp` is what
-produces the `+1` output, but its `SPDLOG_WARN("VTX export: NOT FOUND vtx …")`
-never appears in a `logging: WARN` run, while 10467 successful `Found vtx` lines
-do. The string is present in the binary and the binary is current, so the two
-observations contradict each other and one of the assumptions behind them is
-wrong. Resolve that before changing any code.
+- The vertex **is** declared. For `object_mask_bakuretu_DL_000440` the target is
+  `object_mask_bakuretuVtx_000250` — generated, `MM:ARRAY`, `offset: 0x000250`,
+  `array_type: VTX`, segment 10, the same segment and file as the display list.
+- The output is the signature of `ExportVtx`'s not-found branch in
+  `src/factories/oot/OoTDListHelpers.cpp` (`w1 = (w1 & 0x0FFFFFFF) + 1`).
+- That branch's `SPDLOG_WARN("VTX export: NOT FOUND vtx …")` **never appears** in
+  a `logging: WARN` run, while 10467 successful `Found vtx` lines do — and the
+  string is in the binary, which is current.
 
-Useful technique: the reference's own hash names its target. Rebuild torch's
-CRC64 table from `lib/strhash64/StrHash64.cpp`, hash every manifest key, and look
-up the two words the reference writes after the command. That is how the
-`icon_item_static_yar` texture below was identified.
+**Do not change code until this is explained.** Add a temporary `SPDLOG_CRITICAL`
+at the top of `ExportVtx` and in each of its four exits, printing `ptr`,
+`Companion::Instance->GetCurrentFile()` and the branch taken, then pull out the
+lines for `object_mask_bakuretu`. One run answers it.
 
-### Fixed here
+Leading hypothesis, from `Companion::GetNodeByAddr` (`Companion.cpp:2244`): the
+lookup is scoped to `gCurrentFile` **and is an exact address match** — range
+containment happens only in the overlap/`SearchVtx` path. If a display list
+references an address *inside* the array rather than its first byte, the direct
+lookup misses, and whether `SearchVtx` catches it depends on its own guard
+(`GetGBIMinorVersion() != GBIMinorVersion::OoT` returns early). Worth checking
+what MM's `gbi:` resolves that to — `assets/yml/config.yml` says `F3DEX2_OoT`,
+inherited from OoT and never independently verified.
+
+**Technique that works here: the reference's hash names its own target.** Rebuild
+torch's CRC64 table from `lib/strhash64/StrHash64.cpp`, hash every manifest key,
+and look up the two words the reference writes after the command. That identified
+`icon_item_static_yar/gABtnSymbolTex` immediately, which is how the external-file
+bug below was found.
+
+## Step 2 — Scenes (13) and collision (4)
+
+Both undiagnosed, both small, and scenes have the most prior context. Samples:
+`scenes/nonmq/Z2_SINKAI/Z2_SINKAI`, `scenes/nonmq/Z2_OKUJOU/Z2_OKUJOUSet_012CC0`,
+`objects/object_iknv_obj/object_iknv_obj_Colheader_012788`.
+
+Method: byte-diff against the reference, find the first differing command, and
+compare that command's writer in `RoomExporter.cpp` / `CollisionExporter.cpp`
+against `OoTSceneCommandWriter.cpp` / `OoTCollisionFactory.cpp`. Exactly how
+`SetRoomBehavior`, the room-name padding and the `0x19` reuse were found — the
+divergence is a specific field and the exporter states it.
+
+## Step 3 — The two stragglers already understood
+
+- **2 OMTX in `object_dog`.** `extract_from_rom` in
+  `tools/generate_supplemental.py` iterates rooms and scenes only, so object
+  display lists are never walked for `G_MTX`. The walk itself already exists;
+  extending it to objects is mechanical.
+- **4+1 OARR.** Arrays of `Pointer`/`Scalar`/`CollisionPoly` element kinds, which
+  `OoTArrayFactory` cannot build (it does VTX and Vec3s). Three small element
+  writers; `SohArrayType`/`SohScalarType` in `OoTArrayFactory.h` already name the
+  values.
+
+## Step 4 — New factories, largest first
+
+- **OSMP audio samples (20).** `audio/samples/sample_N_<addr>_META`. MM's audio
+  differs from OoT's; read `AudioExporter.cpp` and scope it before committing.
+- **OKFA/OKFS keyframe animation and skeleton (12).** No factory at all.
+  `CKeyFrameExporter.cpp` and `ZCkeyFrameAnim.h` are the spec. Self-contained and
+  MM-only, so zero OoT risk — the same shape as the texture-animation work, which
+  landed 293/293 first try.
+- **OTXM MM text (2).** Lowest value; do last.
+
+## Already fixed in this area
 
 **External files resolved by their declared name.** MM's archive XMLs are not
 named after the file they contain: `archives/icon_item_static.xml` holds
 `<File Name="icon_item_static_yar">`. An `ExternalFile` reference names the *XML*,
 so deriving the DMA name from the path silently dropped the reference and every
 display list pointing into that file failed to resolve. Reading `File Name` out
-of the referenced XML fixed all 8 `icon_item_vtx_static` failures. The emitted
-yml path has to follow `OutName`, not the XML stem.
+of the referenced XML fixed all 8 `icon_item_vtx_static` failures; the emitted yml
+path has to follow `OutName`, not the XML stem.
 
-**portVersion.** `score.sh` never passed `-u`, so the file was simply absent. MM
+**portVersion.** `score.sh` never passed `-u`, so the file was absent entirely. MM
 stamps 5.0.0, matching 2ship's CMake project version; the reference reads
-`01 0005 0000 0000` with the endianness byte from `PORT_VERSION_ENDIANNESS=ON`.
+`01 0005 0000 0000`, the leading byte coming from `PORT_VERSION_ENDIANNESS=ON`.
 
-## Original phase B notes (438)
+## Verification
 
-Two unrelated problems sharing a type:
-
-**295 same-size, differing commands.** Example, `gElegyShellDekuDL`, three commands
-differ identically:
-
-```
-ours 000000de 1100000c
-ref  0000003d 0200000c
+```sh
+./tools/score.sh                # 50403 pass / 74 fail / 0 extra today
+./tools/oot_gate.sh pal_gc      # 35386 matching, 0 mismatched
 ```
 
-`0xDE` is `G_DL` in F3DEX2; the reference emits `0x3D`. Both words differ, so this
-is a whole-command substitution, not a pointer that failed to resolve.
+Separate commands, and read the exit status. `score.sh` attributes failures to the
+declaring asset type, so a run says which factory is wrong rather than only how
+many assets are.
 
-**143 short by exactly 8**, i.e. one missing command. First divergence in
-`sDebugDisplay1DL`:
+Done is `0 failed, 0 extra, 0 not generated`. If an area costs more than it is
+worth — MM audio is the likely candidate — say so and leave it documented here
+rather than half-built.
 
-```
-ours 00000032 00000000
-ref  40000232 00000000
-```
+## Not in scope
 
-Worth checking whether these are the same root cause before splitting the work.
-
----
-
-## Phase C — The tail (28)
-
-`OSMP` 20 (audio samples — needs the MM audio factories, which do not exist),
-`OCOL` 4, `OTXM` 2, `OARR` 1, `OSKL` 1. Small enough to leave until A and B land,
-since some may resolve as side effects.
-
----
-
-## Not in scope here
-
-Still deferred, unchanged, and tracked in `mm-status.md`:
-
-- Arrays of `Pointer`/`Scalar`/`CollisionPoly` element kinds (4 in XML, 2 in the
-  reference) — the array factory builds only VTX and Vec3s.
-- Types with no Torch factory: `OTAN` texture animation (293 in the reference),
-  `OKFA`/`OKFS` keyframe animation and skeleton, and the audio set. These are
-  absent from the generated archive entirely rather than wrong, so they show up as
-  "not generated", not as failures.
-
-## Order and rationale
-
-1. ~~**A2 paths.**~~ Done — and it established the `game:` config key and the
-   branch-don't-fork pattern the rest of phase A should follow.
-2. ~~**A1 + A3.**~~ Done. **A4** (cutscene contents) is what remains of phase A.
-3. **B**, after A, since some DList failures sit inside rooms and may move.
-4. **C** last.
-
-Run `./tools/oot_gate.sh pal_gc` after every torch change — all of this touches
-`OoTSceneCommandWriter` and `OoTPathFactory`, which OoT depends on. The shared code
-should learn MM's variants behind a game check rather than being forked, following
-the `kArrayTypes`/`kMtxTypes` precedent in `OoTDListHelpers.cpp`.
+Adding GC US as a second target. That is the payoff for the name-based segment
+work and should follow completion, not interleave with it.
