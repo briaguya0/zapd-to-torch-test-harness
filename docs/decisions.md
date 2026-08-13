@@ -400,3 +400,32 @@ no longer emits anything the reference does not have.
 
 Supersedes the open question in decision 28 — the room half of that split is
 resolved, and every remaining room-shaped failure is a scene.
+
+### 33. Two self-inflicted debugging failures worth not repeating
+
+The MM cutscene work cost far more than it should have, twice for reasons
+that were mine rather than the code's.
+
+**A stale binary read as a segfault.** Build and score were chained in one
+command several times. One build ran with the wrong working directory and
+silently did nothing, so `score.sh` kept measuring an older broken binary. The
+same source ran clean once actually rebuilt. Compounding it, success was tested
+with `grep … || echo "still failing"`, which reports on *grep* matching, not on
+the run succeeding — so a passing run with unexpected output read as a failure.
+The work was parked on a branch as unfixable on that basis, wrongly.
+
+*Apply:* build and measure as separate steps, and check exit status rather than
+grepping for a string.
+
+**Enum values written from ordering rather than read.** Four cutscene command
+constants were inferred from where they sat in the enum; three were wrong.
+`CS_CMD_PLAYER_CUE` is 200, not 300, and carries 0x30-byte entries — reading it
+as an 8-byte generic desynced the rom walk by 40 bytes each time. The runs of
+impossible "command id 0, zero entries" in the parse were the middle of an actor
+cue being read as a command header, and were visible for a long time before
+being recognised as the symptom they were.
+
+*Apply:* the same rule that has worked everywhere else here — read the value
+from the source, do not infer it. `rom_info.py`, `CmpDma_GetFileInfo` and
+`PathExporter.cpp` were all found that way; this was the one place it was
+skipped, and it was the one place that went badly.

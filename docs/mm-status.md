@@ -5,8 +5,8 @@ the OTRExporter reference for NTSC-U 1.0).
 
 ```
 generated 49354 of 50496 reference assets
-  PASS  50166      (99.3%)
-  FAIL    310
+  PASS  50393      (99.8%)
+  FAIL     83
   EXTRA     0
   not generated  20
 ```
@@ -41,6 +41,7 @@ rather than writing MM copies.
 | MM:LIMB | 3495 / 3495 |
 | MM:PATH | 688 / 688 |
 | MM:TEXTURE_ANIMATION | 293 / 293 |
+| MM:CUTSCENE | 421 / 421 |
 | MM:ROOM | 582 / 595 |
 | MM:COLLISION | 286 / 290 |
 | BLOB | 234 |
