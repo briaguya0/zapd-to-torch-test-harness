@@ -2,7 +2,7 @@
 """Generate supplemental.json containing all asset data not in ZAPD XML.
 
 Merges data from:
-- Reference O2R: VTX arrays, GFX (child DLists), OOT:LIMB, OOT:COLLISION, BLOB
+- Reference O2R: VTX arrays, GFX (child DLists), MM:LIMB, MM:COLLISION, BLOB
 - ROM binary: Set_ alternate headers, MTX offsets from DList walking
 
 Output: Single supplemental.json keyed by DMA names (e.g. "gameplay_keep",
@@ -16,6 +16,7 @@ import argparse
 import json
 import os
 import re
+import collections
 import struct
 import sys
 import zipfile
@@ -24,15 +25,44 @@ import zipfile
 # --- Constants ---
 
 RESOURCE_TYPES = {
-    0x4F444C54: "GFX",
-    0x4F4D5458: "OOT:MTX",
-    0x4F415252: "OOT:ARRAY",
-    0x4F424C42: "BLOB",
-    0x4F534C42: "OOT:LIMB",
-    0x4F434F4C: "OOT:COLLISION",
-    0x4F524F4D: "OOT:ROOM",
-    0x4F565458: "VTX",
-    0x4F544558: "TEXTURE",  # OTEX
+    0x4F444C54: "GFX",                    # ODLT
+    0x4F544558: "TEXTURE",                # OTEX
+    0x4F415252: "MM:ARRAY",               # OARR
+    0x4F565458: "VTX",                    # OVTX
+    0x4F424C42: "BLOB",                   # OBLB
+    0x4F4D5458: "MM:MTX",                 # OMTX
+    0x4F534C42: "MM:LIMB",                # OSLB
+    0x4F534B4C: "MM:SKELETON",            # OSKL
+    0x4F414E4D: "MM:ANIMATION",           # OANM
+    0x4F50414D: "MM:PLAYER_ANIMATION",    # OPAM
+    0x4F434F4C: "MM:COLLISION",           # OCOL
+    0x4F524F4D: "MM:ROOM",                # OROM
+    0x4F505448: "MM:PATH",                # OPTH
+    0x4F435654: "MM:CUTSCENE",            # OCVT
+}
+
+# Types deferred: a factory exists but the metadata needed to drive it is not
+# recovered yet, so emitting them breaks extraction rather than helping.
+#
+#   MM:PATH -- the path factory needs num_paths, which OoT recovered by scanning
+#   scene commands. Without it the factory reads a single entry and follows a
+#   garbage pointer ("Failed to decode YAZ0"). 688 paths are waiting on an MM
+#   scene-command scan.
+DEFERRED_TYPES = {
+    "MM:PATH": "needs num_paths from an MM scene-command scan",
+}
+
+# Present in the reference but with no Torch factory yet, so nothing can be
+# emitted for them. Counted and reported rather than silently dropped.
+UNSUPPORTED_RESOURCE_TYPES = {
+    0x4F54414E: "OTAN (texture animation)",
+    0x4F4B4641: "OKFA (keyframe animation)",
+    0x4F4B4653: "OKFS (keyframe skeleton)",
+    0x4F54584D: "OTXM (MM text)",
+    0x4F534D50: "OSMP (audio sample)",
+    0x4F534551: "OSEQ (audio sequence)",
+    0x4F534654: "OSFT (soundfont)",
+    0x4F415544: "OAUD (audio)",
 }
 
 # ZAPD TextureType enum -> Torch/YAML format string
@@ -43,7 +73,7 @@ TEX_FORMAT_MAP = {
 
 LIMB_TYPE_MAP = {1: "Standard", 2: "LOD", 3: "Skin", 4: "Curve", 5: "Legacy"}
 
-ROOM_PATTERN = re.compile(r"^(.+?(?:_room_\d+|_scene))(.*)")
+ROOM_PATTERN = re.compile(r"^(.+?_room_\d+)(.*)")
 SET_PATTERN = re.compile(r"Set_[0-9A-Fa-f]+")
 
 # F3DEX2 GBI
@@ -91,26 +121,26 @@ def o2r_path_to_file_key(path):
     """Convert an O2R path to a YAML file key and asset name.
 
     Returns (file_key, asset_name) or (None, None) if unmappable.
-    File key matches the YAML path without .yml extension.
+    File key matches the YAML path without the .yml extension.
     """
     parts = path.split("/")
     if len(parts) < 3:
         return None, None
 
     if parts[0] == "scenes" and len(parts) == 4:
-        # scenes/nonmq/Bmori1_scene/Bmori1_room_0DL_001CB0
-        mq_status = parts[1]  # "shared" or "nonmq"
-        asset_name = parts[3]
-        # Skip Set_ GFX/MTX aliases (handled by ROM extraction)
+        # scenes/nonmq/SPOT00/SPOT00_room_00DL_001CB0
+        # scenes/nonmq/SPOT00/SPOT00CollisionHeader_0012E0
+        #
+        # Unlike OoT there is no _scene suffix, and the directory is named after
+        # the scene. Room assets belong to their own room YAML; everything else
+        # belongs to the scene YAML, which is the directory name.
+        prefix, scene, asset_name = parts[1], parts[2], parts[3]
         if SET_PATTERN.search(asset_name):
             return None, None
-        # Extract room/scene name from asset name
         m = ROOM_PATTERN.match(asset_name)
         if m:
-            room_name = m.group(1)
-            return f"scenes/{mq_status}/{room_name}", asset_name
-        else:
-            return None, None  # ambiguous scene name
+            return f"scenes/{prefix}/{m.group(1)}", asset_name
+        return f"scenes/{prefix}/{scene}", asset_name
     elif len(parts) == 3:
         # objects/gameplay_keep/asset, code/sys_matrix/asset
         return f"{parts[0]}/{parts[1]}", parts[2]
@@ -180,9 +210,13 @@ def extract_from_o2r(zf):
 
         stats["scanned"] += 1
 
+        if type_name in DEFERRED_TYPES:
+            stats.setdefault("deferred", collections.Counter())[type_name] += 1
+            continue
+
         # Skip MTX from O2R — their name-derived offsets are wrong (Mtx_000000
         # is a naming convention, not the real offset). MTX offsets come from ROM.
-        if type_name == "OOT:MTX":
+        if type_name == "MM:MTX":
             continue
 
         # Extract offset from asset name
@@ -190,7 +224,7 @@ def extract_from_o2r(zf):
         if not offset_match:
             offset_match = re.search(r"(?:Header|Blob)_([0-9A-Fa-f]+)$", asset_name)
         if not offset_match:
-            if type_name == "OOT:ROOM":
+            if type_name == "MM:ROOM":
                 offset_hex = "0"
             else:
                 continue
@@ -205,14 +239,22 @@ def extract_from_o2r(zf):
         }
 
         # Type-specific metadata
-        if type_name == "OOT:ARRAY" and len(data) >= 72:
+        if type_name == "MM:ARRAY" and len(data) >= 72:
+            # SohArrayType: 24 = Vector, 25 = Vertex. MM also uses a few kinds the
+            # array factory cannot build (16, 28, 29 -- Pointer/Scalar/CollisionPoly
+            # arrays); emitting those without an array_type aborts extraction, so
+            # they are skipped and tallied instead.
             arr_type = struct.unpack_from("<I", data, 64)[0]
-            count = struct.unpack_from("<I", data, 68)[0]
-            entry["count"] = count
+            entry["count"] = struct.unpack_from("<I", data, 68)[0]
             if arr_type == 25:
                 entry["array_type"] = "VTX"
+            elif arr_type == 24:
+                entry["array_type"] = "Vec3s"
+            else:
+                stats.setdefault("unsupported_array_types", collections.Counter())[arr_type] += 1
+                continue
 
-        elif type_name == "OOT:LIMB" and len(data) >= 68:
+        elif type_name == "MM:LIMB" and len(data) >= 68:
             limb_type_val = struct.unpack_from("<I", data, 64)[0] & 0xFF
             limb_type_str = LIMB_TYPE_MAP.get(limb_type_val)
             if limb_type_str:
@@ -246,7 +288,7 @@ def resolve_blob_offsets(assets, zf):
         skel_offsets = {}
         skel_limb_counts = {}
         for e in entries:
-            if e["type"] == "OOT:SKELETON" if "type" in e else False:
+            if e["type"] == "MM:SKELETON" if "type" in e else False:
                 pass  # skeletons aren't in supplemental — they're in XML
 
         # Read skeleton binaries from O2R to get limb count
@@ -382,7 +424,7 @@ def extract_from_rom(rom_data, dma, dma_to_path):
                 if ptr_seg != seg_num:
                     continue
 
-                asset_type = "OOT:ROOM" if "_room_" in dma_name else "OOT:SCENE"
+                asset_type = "MM:ROOM" if "_room_" in dma_name else "MM:SCENE"
                 set_symbol = f"{dma_name}Set_{ptr_offset:06X}"
                 # Build segment config from DMA table
                 segments = []
@@ -466,7 +508,7 @@ def extract_from_rom(rom_data, dma, dma_to_path):
                                         mtx_symbol = f"{cur_symbol}Mtx_000000"
                                         entry = {
                                             "name": mtx_symbol,
-                                            "type": "OOT:MTX",
+                                            "type": "MM:MTX",
                                             "offset": f"0x{mtx_offset:X}",
                                             "symbol": mtx_symbol,
                                         }

@@ -241,7 +241,14 @@ def convert_generic(elem):
     if elem.get("LimbType"):
         entry["limb_type"] = elem.get("LimbType")
     if elem.get("Type"):
-        entry["skel_type"] = elem.get("Type")
+        # `Type` means different things per element. On a Skeleton it is the
+        # skeleton kind (Flex/Normal/Curve) and LimbType carries the limb kind.
+        # On a Limb there is no second attribute -- Type *is* the limb kind
+        # (Standard/LOD/Curve/Skin), which is what the limb factory reads.
+        if elem.tag == "Limb":
+            entry.setdefault("limb_type", elem.get("Type"))
+        else:
+            entry["skel_type"] = elem.get("Type")
     if elem.get("FrameCount"):
         entry["frame_count"] = int(elem.get("FrameCount"))
     if elem.get("NumPaths"):
@@ -595,7 +602,7 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
             entry = converter(elem)
             if entry:
                 # Text assets need the code section's physical ROM address
-                if elem.tag == "Text" and "code" in dma_table:
+                if elem.tag in ("Text", "TextMM") and "code" in dma_table:
                     entry["code_phys_start"] = dma_table["code"]["phys_start"]
                 assets.append(entry)
 
@@ -617,8 +624,12 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
         # output under the scene's directory (e.g. scenes/nonmq/bdan_scene).
         if xml_rel_path.startswith("scenes/"):
             scene_dir = get_scene_directory(xml_rel_path)
-            # Room files need the override; scene files get the right path from filename
-            if not out_name.endswith("_scene"):
+            # Room files need the directory override and the scene's segment 2 so
+            # their DLists can reach scene textures. OoT detected "not a scene" by
+            # the _scene suffix; MM scene files have no suffix, so that test also
+            # caught the scene itself -- giving it a duplicate segment 2 and an
+            # external_files entry pointing at itself. Key on being a room instead.
+            if "_room_" in out_name:
                 directory = scene_dir
                 # Room DLists reference segment 2 textures from the scene file.
                 # Add the scene's segment 2 so Torch can resolve those references.
@@ -631,11 +642,14 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
                     scene_yml = f"{out_prefix}/{category}/{scene_dma_name}.yml"
                     if scene_yml not in file_external_files:
                         file_external_files.append(scene_yml)
-                # Mesh type 2 (cullable) room DLists reference gMtxClear via VRAM address.
-                # Add code/sys_matrix.yml so Torch can resolve the VRAM matrix reference.
-                sys_matrix_yml = f"{out_prefix}/code/sys_matrix.yml"
-                if sys_matrix_yml not in file_external_files:
-                    file_external_files.append(sys_matrix_yml)
+                # OoT room DLists reference gMtxClear via a VRAM address and need
+                # code/sys_matrix.yml as an external. MM has no sys_matrix XML and no
+                # gMtxClear in its reference, so only add it where it exists.
+                sys_matrix_xml = os.path.join(xml_dir, "code", "sys_matrix.xml") if xml_dir else None
+                if sys_matrix_xml and os.path.isfile(sys_matrix_xml):
+                    sys_matrix_yml = f"{out_prefix}/code/sys_matrix.yml"
+                    if sys_matrix_yml not in file_external_files:
+                        file_external_files.append(sys_matrix_yml)
 
         # Files under archives/ are MM CmpDma containers: a table of u32 offsets
         # followed by one Yaz0 stream per asset. They carry no magic, so Torch

@@ -25,6 +25,11 @@ OUT="$(mktemp -d)"; trap 'rm -rf "$OUT"' EXIT
 
 gen_args=(--xml-dir "$XML_DIR" --dma-json "dma/${VERSION}.json" --out-dir "assets/yml/${VERSION}")
 [[ -n "$TYPES" ]] && gen_args+=(--types "$TYPES")
+# Supplemental only makes sense on a full run: it declares assets across all types,
+# and injecting it into a --types subset reintroduces the types being excluded.
+if [[ -z "$TYPES" && -f "supplemental/${VERSION}.json" ]]; then
+    gen_args+=(--supplemental-json "supplemental/${VERSION}.json")
+fi
 
 rm -rf "assets/yml/${VERSION}"
 python3 tools/zapd_to_torch.py "${gen_args[@]}" || exit 1
