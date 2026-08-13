@@ -257,16 +257,21 @@ def extract_from_o2r(zf):
 
         # Type-specific metadata
         if type_name == "MM:ARRAY" and len(data) >= 72:
-            # SohArrayType: 24 = Vector, 25 = Vertex. MM also uses a few kinds the
-            # array factory cannot build (16, 28, 29 -- Pointer/Scalar/CollisionPoly
-            # arrays); emitting those without an array_type aborts extraction, so
-            # they are skipped and tallied instead.
+            # SohArrayType, mirroring ZResourceType: 24 Vector, 25 Vertex,
+            # 28 CollisionPoly, 29 Pointer. 16 (Scalar) needs the element width,
+            # which only the XML carries, so those still come from there. Anything
+            # else has no array_type to emit, and emitting none aborts extraction,
+            # so it is skipped and tallied.
             arr_type = struct.unpack_from("<I", data, 64)[0]
             entry["count"] = struct.unpack_from("<I", data, 68)[0]
             if arr_type == 25:
                 entry["array_type"] = "VTX"
             elif arr_type == 24:
                 entry["array_type"] = "Vec3s"
+            elif arr_type == 28:
+                entry["array_type"] = "CollisionPoly"
+            elif arr_type == 29:
+                entry["array_type"] = "Pointer"
             else:
                 stats.setdefault("unsupported_array_types", collections.Counter())[arr_type] += 1
                 continue

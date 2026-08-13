@@ -172,6 +172,10 @@ def convert_array(elem):
             if st is not None:
                 entry["array_type"] = "Scalar"
                 entry["scalar_type"] = st
+        elif child.tag in ("Pointer", "CollisionPoly"):
+            # ArrayExporter has no writer for these; it emits a bare type word per
+            # element. See the OTRExporter deterministic-arrays branch.
+            entry["array_type"] = child.tag
         elif child.tag == "Vector":
             vec_type = child.get("Type", "s16")
             dims = child.get("Dimensions", "3")

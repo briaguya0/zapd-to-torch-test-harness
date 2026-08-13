@@ -491,3 +491,50 @@ Instrumenting settled it in one line: `w1=0x801BA550` resolved to `ptr=0x80114A9
 exactly where the array is registered, immediately followed by `direct lookup
 miss`. That is rule 3 of the endgame plan working as intended, after rule 3 was
 written *because* the previous stretch ignored it.
+
+### 37. A duplicate asset is declared as a duplicate, not as a second asset
+
+ZAPD emits `object_horse_link_child`'s skin-limb display list twice: as
+`object_horse_link_child_DL_00D500` from the XML, and again under the limb's own
+name from the skin-limb exporter. Both archive entries are byte-identical, and
+the copy's self-hash — the CRC64 a display list writes of its own path — names
+the *original*. The limb that references offset 0xD500 also resolves to the
+original.
+
+The supplemental injector had been dropping any entry landing on an
+already-declared offset, on the theory that it was an alias Torch regenerates.
+That rule is right for the 7 rom-scan matrix guesses it drops and wrong for this
+one, so entries read out of the reference archive — names the reference provably
+contains — are now let through.
+
+Declaring it plainly gets both halves wrong: it hashes itself under its own name,
+and being registered second it takes over the address map and steals the limb's
+reference. So Torch grew `duplicate_of: <path>`: the node is skipped when the
+address map is populated, and the display list exporter hashes the named path
+instead of its own. Both halves, one key.
+
+*Diagnosis note:* the differing bytes looked like an unresolved `G_VTX` hash and
+were nearly chased as one. They are the marker at the top of every exported
+display list — `G_MARKER`, `0xBEEFBEEF`, then `CRC64(own path)`. Reading the word
+as big-endian rather than little-endian is what made it look like an opcode; the
+writer at `OoTDListHelpers.cpp:690` says plainly what it is.
+
+### 38. Non-scalar array elements: fix the exporter, don't guess the memory
+
+`ArrayExporter.cpp` handles Vertex and Vector explicitly and casts everything
+else to `ZScalar` to write `scal->scalarType`. For MM's three Pointer and
+CollisionPoly arrays that cast is invalid, so the reference carries four bytes of
+stale memory per element — not reproducible, and nothing to match against.
+
+Same treatment as the ZLimb `totalVtxCount` residue: fix it at the source and
+rebuild the reference. `briaguya0/OTRExporter` branch `deterministic-arrays`
+writes `ZSCALAR_NONE` for element kinds with no exporter — same stream layout,
+one type word and no payload, but a defined value — and
+`briaguya0/2ship2harkinian` `deterministic-extraction` points the submodule at
+it. That branch needs a CI build to produce a new reference.
+
+Torch builds the arrays now regardless, since everything but those words is
+already known: `SohArrayType` mirrors `ZResourceType`, so CollisionPoly is 28 and
+Pointer 29, which is what the reference's own header words say. Against today's
+reference the three match in length, type and count and differ only where the fix
+zeroes.

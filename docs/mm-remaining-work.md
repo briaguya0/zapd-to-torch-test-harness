@@ -165,27 +165,38 @@ work and should follow completion, not interleave with it.
 
 ---
 
-## The last few, and why two of them are not fixable here
+## The last few
 
-Standing after the endgame pass: **50489 / 50496**, 3 failing and 4 not generated.
+Standing: **50490 / 50496 passing, all 50496 generated**, 6 failing — of which 3
+are waiting on a reference rebuild and 1 is a reference artefact.
 
-### Blocked on ZAPD determinism (3 assets)
+### Waiting on a rebuilt reference (3 assets)
 
-`ArrayExporter.cpp` handles Vertex and Vector arrays explicitly and sends
-everything else through an `else` branch that casts the element to `ZScalar` and
-writes `scal->scalarType`. For a Pointer or CollisionPoly element that member is
-uninitialized, so the reference contains 4 bytes of stale memory per element and
-no value at all:
+`ArrayExporter.cpp` handled Vertex and Vector arrays explicitly and sent
+everything else through an `else` branch that cast the element to `ZScalar` and
+wrote `scal->scalarType`. For a Pointer or CollisionPoly element that member is
+uninitialized, so the current reference contains 4 bytes of stale memory per
+element and no value at all:
 
 ```
 sTurtleGreatBayTempleColPolygons   19 elements x 4 bytes: 7b09e07a 23b40967 1307...
 object_hanareyama_obj_DLArray_004638  54 x 4:             e8a2641b 48765e1b d849...
 ```
 
-None of those are valid `ZScalarType` values. This is the same class as the limb
-`totalVtxCount` residue that ZAPDTR #37 fixed, and it needs the same treatment: a
-ZAPD change plus a rebuilt reference. Emitting anything here would be guessing at
-uninitialized memory.
+None of those are valid `ZScalarType` values. Same class as the limb
+`totalVtxCount` residue ZAPDTR #37 fixed, but with no upstream fix yet, so:
+
+- `briaguya0/OTRExporter` branch **`deterministic-arrays`** writes
+  `ZSCALAR_NONE` for element kinds with no exporter — same stream layout, defined
+  value.
+- `briaguya0/2ship2harkinian` branch **`deterministic-extraction`** (`95a0b33eb`)
+  points the submodule at it, so a CI build of that commit produces a reference
+  with zeros there.
+
+Torch builds these arrays now (`CollisionPoly` = 28, `Pointer` = 29, mirroring
+`ZResourceType`). Against the current reference all three match in length, type
+word and count, and differ only in the words the fix zeroes; against a reference
+built from the branch above they should match outright.
 
 Affected: `sTurtleGreatBayTempleColPolygons`, `sTurtleGreatBayTempleColPolygons2`,
 `object_hanareyama_obj_DLArray_004638`.
@@ -200,9 +211,19 @@ further; it is one asset and every cheap explanation was checked and rejected
 (the `VTX()` text round-trip is lossless, and `ZVtx::ParseRawData` reads plain
 Int16BE).
 
-### `object_horse_link_child_Skinlimb_00A138SkinLimbDL_00D500` — not generated
+### `object_horse_link_child_Skinlimb_00A138SkinLimbDL_00D500` — fixed
 
-A skin-limb display list. Undiagnosed.
+ZAPD emits this display list twice: once from the XML as
+`object_horse_link_child_DL_00D500`, and again from the skin-limb exporter under
+the limb's name. The two archive entries are byte-identical *including the
+self-hash*, which names the original — and the limb that points at offset 0xD500
+resolves to the original, not the copy.
+
+The supplemental injector had been dropping it as an alias. Declaring it plainly
+gets both halves wrong: it would hash itself under its own name, and being
+registered second it would take over the address map and steal the limb's
+reference. `duplicate_of: <path>` on the node says both — skip address
+registration, hash the named path.
 
 ### MM text (2 assets)
 
