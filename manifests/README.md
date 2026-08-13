@@ -13,7 +13,12 @@ Hashes and asset paths only — no ROM data.
 
 | Manifest | Assets | Covers | Reference produced by |
 |----------|-------:|--------|-----------------------|
-| `ntsc_u.json` | 50496 | MM NTSC-U 1.0 (sha1 `d6133ace`) | 2ship CI build of `d35196ad7`, ZAPD/OTRExporter |
+| `ntsc_u.json` | 50496 | MM NTSC-U 1.0 (sha1 `d6133ace`) | 2ship CI build of `95a0b33eb` (`deterministic-extraction`) |
+
+That branch carries the ZAPD/OTRExporter fixes the reference has to be built with
+for the archive to be reproducible at all — see `docs/decisions.md` 38. Rebuilding
+the manifest from an upstream-built o2r will reintroduce mismatches that are the
+reference's fault, not Torch's.
 
 The largest categories are `scenes` (22379) and `objects` (21125) — together 86%
 of the archive.

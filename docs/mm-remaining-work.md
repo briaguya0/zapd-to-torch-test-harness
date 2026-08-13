@@ -167,10 +167,10 @@ work and should follow completion, not interleave with it.
 
 ## The last few
 
-Standing: **50490 / 50496 passing, all 50496 generated**, 6 failing — of which 3
-are waiting on a reference rebuild and 1 is a reference artefact.
+Standing: **50493 / 50496 passing, all 50496 generated**. What is left is the two
+MM text assets and one reference artefact.
 
-### Waiting on a rebuilt reference (3 assets)
+### Pointer and CollisionPoly arrays — fixed, and the reference rebuilt
 
 `ArrayExporter.cpp` handled Vertex and Vector arrays explicitly and sent
 everything else through an `else` branch that cast the element to `ZScalar` and
@@ -193,13 +193,14 @@ None of those are valid `ZScalarType` values. Same class as the limb
   points the submodule at it, so a CI build of that commit produces a reference
   with zeros there.
 
-Torch builds these arrays now (`CollisionPoly` = 28, `Pointer` = 29, mirroring
-`ZResourceType`). Against the current reference all three match in length, type
-word and count, and differ only in the words the fix zeroes; against a reference
-built from the branch above they should match outright.
+Torch builds these arrays (`CollisionPoly` = 28, `Pointer` = 29, mirroring
+`ZResourceType`). The reference was rebuilt from that branch and **all three now
+match**: `sTurtleGreatBayTempleColPolygons`,
+`sTurtleGreatBayTempleColPolygons2`, `object_hanareyama_obj_DLArray_004638`.
 
-Affected: `sTurtleGreatBayTempleColPolygons`, `sTurtleGreatBayTempleColPolygons2`,
-`object_hanareyama_obj_DLArray_004638`.
+The rebuild changed those three assets and *nothing else* — 3 hashes out of
+50496, no additions, no removals — which is as clean a confirmation as the fix
+could have asked for.
 
 ### `gameplay_keepVtx_07ACF8` — reference data not present in the rom
 
