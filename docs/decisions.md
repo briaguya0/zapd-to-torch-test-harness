@@ -222,15 +222,29 @@ Both were initially wrong in the obvious-looking direction:
 
 ### 21. `_yar` archives need a Torch container format, not a config tweak
 
-The 520 remaining texture failures are exactly the `archives/*_yar` files. They
-are not plain data at their DMA offset: the file opens with a table of u32
-offsets to sub-files, the first of which carries a `Yaz0` magic and a
-decompressed size of `0x900` — exactly one 24×24 RGBA32 texture. The DMA entry
-reports the file uncompressed (`phys_end == 0`), so Torch reads the container
-bytes directly and every texture in it comes out as garbage.
+The 520 remaining texture failures are exactly the seven files under
+`archives/`. They are CmpDma containers: a table of `u32` offsets followed by one
+Yaz0 stream per texture, loaded in-game by `CmpDma_LoadFile`. The format is
+defined by `CmpDma_GetFileInfo` in `2ship/mm/src/code/sys_cmpdma.c` — found by
+looking for who already knows the format rather than reverse-engineering it, the
+same move that found the DMA offsets in `rom_info.py`.
 
-This is an MM-specific container Torch has no concept of, so it is Phase 5 work,
-not a YAML or config fix.
+The DMA entry correctly says the container is uncompressed; the compression is one
+level down, so Torch's magic-sniffing sees no header and reads raw container
+bytes. Verified across all seven: sub-file count equals XML texture count and total
+decompressed size equals the highest XML offset plus its size, exactly.
+
+Fix is a new `CompressionType` that walks the table and concatenates the sub-files
+— every existing offset path then works unchanged, because the XML offsets already
+address that concatenation. It must be an **explicit YAML opt-in, not
+auto-detection**: a container starts with its `dataStart` word (`0000003C`), which
+is plausible leading data for an unrelated file. Explicit opt-in also keeps the
+change additive, so OoT extraction cannot be affected.
+
+Phase 5 work. Full write-up in `mm-yar-archives.md`.
+
+*Rejected:* Torch's existing `preprocess:` hook. It decompresses the whole ROM
+(`mio0-comptool`), which is the wrong layer for a per-file container.
 
 ### 22. Reference o2r archives are disposable; the manifests are the reference
 
