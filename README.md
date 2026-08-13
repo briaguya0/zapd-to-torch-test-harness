@@ -22,13 +22,18 @@ git clone --recurse-submodules https://github.com/briaguya0/zapd-to-torch-test-h
 Against `manifests/ntsc_u.json` (50496 assets, OTRExporter reference for NTSC-U 1.0):
 
 ```
-PASS  45693   (90.5%)
-FAIL   3529
+PASS  47622   (94.3%)
+FAIL   1600
 EXTRA   132
 ```
 
 Byte-identical using the **OoT factories unmodified**: TEXTURE 13542/13542,
-MM:ANIMATION 1755/1755, MM:PLAYER_ANIMATION 695/695, MM:MTX 11/11.
+MM:LIMB 3495/3495, MM:ANIMATION 1755/1755, MM:PLAYER_ANIMATION 695/695,
+MM:MTX 11/11.
+
+The reference is built from `briaguya0/2ship2harkinian` branch
+`deterministic-extraction`, which bumps ZAPDTR past `be1c68a` (#37). Stock 2ship
+writes uninitialized memory into 1929 limbs, making them impossible to match.
 
 Full breakdown, diagnoses, and what is deferred and why: **[docs/mm-status.md](docs/mm-status.md)**.
 
