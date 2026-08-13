@@ -354,3 +354,49 @@ said: ZAPD's uninitialized fields are now fixed, and what remains is ours.
 `supplemental/ntsc_u.json` is byte-identical across the rebuild, which is the
 expected result — it captures names, offsets, types and counts, and the fix changed
 field *values*, not structure.
+
+### 30. `game:` is declared in the config, not sniffed from the cartridge
+
+MM and OoT diverge in enough places that shared code needs to tell them apart, and
+torch had no notion of which Zelda 64 title a rom was — only a `gGameTitle` string
+from the cartridge header.
+
+Added `game:` to the rom config (`OOT` default, `MM`) rather than matching on that
+title, for the same reason CMPDMA is opt-in (7, 21): an explicit declaration cannot
+misfire on a rom nobody anticipated, and it keeps the OoT path untouched by
+construction.
+
+Shared code branches on `Companion::Instance->IsMajorasMask()` rather than being
+forked, following the `kArrayTypes`/`kMtxTypes` precedent from decision 23. Every
+MM divergence so far — pathways, `SetRoomBehavior`, room name padding, `0x19`,
+the cutscene list — is a branch inside the existing OoT writer, and OoT stays at
+35386/0 throughout.
+
+### 31. Instrument rather than guess when a diagnosis stops being obvious
+
+Paths were predicted to be one fix (the three bytes per pathway MM carries and OoT
+treats as padding). That fixed 503 of 522. The remaining 19 were only visible once
+the size deltas stopped dominating, and rather than theorise, a one-line log in the
+alternate-header branch gave **exactly 19 truncations against exactly 19 failures**
+— OoT exports only the first pathway of a shared list, MM exports all.
+
+The same approach settled rooms. The plan had guessed `SetMesh`'s leading `data`
+byte was the missing one; it was not, torch already wrote it. Walking a failing
+room against OTRExporter's switch found `SetRoomBehavior` instead, where MM unpacks
+`gameplayFlags2` into the five fields it encodes. That one diagnosis accounted for
+all 414 room failures.
+
+### 32. A category getting worse can be progress; say which it is
+
+Fixing MM's cutscene naming took `MM:CUTSCENE` from 17 failures to 318, and extras
+from 132 to 0. Nothing regressed: those cutscenes previously had no correct name,
+so they counted as *extras* or as *not generated* rather than as mismatches. They
+are now generated under the right name and therefore actually compared.
+
+Worth recording because the headline number moved the wrong way while the work was
+sound, and a scoreboard that only tracks "failures" would have read it as a
+regression. Extras reaching zero is the same change seen from the other side: torch
+no longer emits anything the reference does not have.
+
+Supersedes the open question in decision 28 — the room half of that split is
+resolved, and every remaining room-shaped failure is a scene.

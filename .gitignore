@@ -3,3 +3,11 @@ __pycache__/
 
 # Local Shipwright AppImage / CI build used to produce the reference O2R
 shipwright-bin/
+
+# Local build trees. torch/build* is this branch's; torchlib-driver/ is a leftover
+# from the dbg2-experiment branch, where its sources are committed.
+torch/build*/
+torchlib-driver/
+
+# 2ship CI build (AppImage) used to produce the reference archive
+2ship-bin/
