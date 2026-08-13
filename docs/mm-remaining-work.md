@@ -167,8 +167,9 @@ work and should follow completion, not interleave with it.
 
 ## The last few
 
-Standing: **50494 / 50496 passing, all 50496 generated**. The only mismatches
-left are the two MM text assets.
+Standing: **50496 / 50496 — the archive is byte-identical to the reference.**
+Every entry below is history now; it is kept for the reasoning, not as a to-do
+list.
 
 ### Pointer and CollisionPoly arrays — fixed, and the reference rebuilt
 
@@ -248,8 +249,16 @@ registered second it would take over the address map and steal the limb's
 reference. `duplicate_of: <path>` on the node says both — skip address
 registration, hash the named path.
 
-### MM text (2 assets)
+### MM text — done
 
-`message_data_static` (ours 86637, reference 448796) and
-`staff_message_data_static`. MM's message format differs from OoT's; this is the
-only remaining item that is real implementation work rather than a quirk.
+`MM:TEXT` had been registered to `OoTTextFactory`, so it wrote OoT's format:
+86637 bytes against the reference's 448796. MM's format differs throughout —
+message offset at table entry +4 with the segment in the top byte, an 11-byte
+per-message header, terminator 0xBF, and its own set of argument-taking control
+codes. `staff_message_data_static` is a third format again, selected by file
+name exactly as ZAPD selects it.
+
+Spec: `ZAPDTR/ZAPD/ZTextMM.cpp` for the layout and control codes,
+`OTRExporter/TextMMExporter.cpp` for the field order. Landed byte-identical on
+the first run, which is what reading the source rather than inferring the format
+buys.

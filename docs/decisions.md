@@ -572,3 +572,32 @@ strength of two searches that were both broken:
 The conclusion survived both bugs by luck. Two wrong measurements agreeing is
 not corroboration, and "I could not find it" is only evidence once the search
 itself has been checked.
+
+### 40. MM text: three formats, all of them written down somewhere
+
+The last two assets. `MM:TEXT` was registered to `OoTTextFactory` — OoT's format
+applied to MM's data, which is why `message_data_static` came out at 86637 bytes
+against a reference of 448796. Nothing subtle was wrong; the wrong parser was
+running.
+
+MM's format, from `ZTextMM::ParseMM`:
+
+- The message *table* is in `code`, the message *text* in the resource's own
+  file, so the factory needs both `code_phys_start`/`code_offset` and segment 128.
+- Table entries are 8 bytes; the message offset is the u32 at +4, top byte the
+  segment, low 24 bits the offset. The table ends at id 0xFFFC or 0xFFFF.
+- Each NES message opens with an 11-byte header — textboxType, textboxYPos,
+  icon, nextMessageID, firstItemCost, secondItemCost — and runs to 0xBF. 0x14
+  takes one argument byte, 0x1B–0x1F take two.
+- `staff_message_data_static` has no header, ends at 0x02, and has its own
+  control codes. ZAPD picks the branch by comparing the file's name, so the
+  factory does the same.
+
+Reproduced one oddity deliberately: for staff messages ZAPD computes
+`textboxType` and `textboxYPos` from the table's packed byte and then sets
+`textboxType = 0` on the next line, leaving `textboxYPos` alone. The comment
+above it claims all of them are zeroed. It reads like an oversight, but the
+reference contains the result, so matching means reproducing it.
+
+Byte-identical on the first run. Every part of this was stated in ZAPD and
+OTRExporter source; none of it was inferred.
