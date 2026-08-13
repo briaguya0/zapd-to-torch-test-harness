@@ -22047,6 +22047,12 @@
       "array_type": "VTX"
     },
     {
+      "name": "gDogSelectionArrowAnimatedDLMtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x130",
+      "symbol": "gDogSelectionArrowAnimatedDLMtx_000000"
+    },
+    {
       "name": "gDogSelectionArrowTexAnimColorParams_00038C",
       "type": "BLOB",
       "symbol": "gDogSelectionArrowTexAnimColorParams_00038C",
@@ -22067,6 +22073,12 @@
       "symbol": "object_dogVtx_0003E0",
       "count": 19,
       "array_type": "VTX"
+    },
+    {
+      "name": "gDogSelectionArrowDLMtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x510",
+      "symbol": "gDogSelectionArrowDLMtx_000000"
     },
     {
       "name": "object_dogVtx_005BE0",
@@ -45907,6 +45919,12 @@
       "array_type": "VTX"
     },
     {
+      "name": "gLotteryShopMaskDLMtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x2A40",
+      "symbol": "gLotteryShopMaskDLMtx_000000"
+    },
+    {
       "name": "gLotteryShopTexAnimTexScrollParams_006180",
       "type": "BLOB",
       "symbol": "gLotteryShopTexAnimTexScrollParams_006180",
@@ -48014,6 +48032,36 @@
       "type": "GFX",
       "offset": "0x01D960",
       "symbol": "object_link_child_DL_01D960"
+    },
+    {
+      "name": "gLinkHumanSheathedKokiriSwordDLMtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1DA98",
+      "symbol": "gLinkHumanSheathedKokiriSwordDLMtx_000000"
+    },
+    {
+      "name": "gLinkHumanSheathedGildedSwordDLMtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1DA98",
+      "symbol": "gLinkHumanSheathedGildedSwordDLMtx_000000"
+    },
+    {
+      "name": "gLinkHumanSheathedRazorSwordDLMtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1DB00",
+      "symbol": "gLinkHumanSheathedRazorSwordDLMtx_000000"
+    },
+    {
+      "name": "gLinkHumanHerosShieldWithMtxDLMtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1DB88",
+      "symbol": "gLinkHumanHerosShieldWithMtxDLMtx_000000"
+    },
+    {
+      "name": "gLinkHumanMirrorShieldWithMtxDLMtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x1DBD8",
+      "symbol": "gLinkHumanMirrorShieldWithMtxDLMtx_000000"
     },
     {
       "name": "object_link_child_DL_01DC38",
@@ -52401,6 +52449,12 @@
       "symbol": "object_milkbarVtx_007460",
       "count": 24,
       "array_type": "VTX"
+    },
+    {
+      "name": "object_milkbarDL_0076A0Mtx_000000",
+      "type": "MM:MTX",
+      "offset": "0x7660",
+      "symbol": "object_milkbarDL_0076A0Mtx_000000"
     },
     {
       "name": "object_milkbar_DL_0076A0",

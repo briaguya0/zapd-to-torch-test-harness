@@ -18,6 +18,7 @@ import os
 import re
 import collections
 import struct
+import xml.etree.ElementTree as ET
 import sys
 import zipfile
 
@@ -393,7 +394,44 @@ def scan_scene_commands(data, offset):
 G_DL_F3DEX2 = 0xDE
 
 
-def extract_from_rom(rom_data, dma, dma_to_path, o2r_assets):
+def build_segment_map(xml_dir, dlists):
+    """Map DMA file name -> the segment its XML declares.
+
+    The segment cannot be inferred from the name: MM puts objects on 6 but also
+    on 8-13, scenes on 2, rooms on 3, and code on 0x80. The XML states it, so read
+    it. Files with no Segment attribute use ZAPD's default of 0x80.
+    """
+    segments = {}
+    if not xml_dir or not os.path.isdir(xml_dir):
+        return segments
+    for dirpath, _, filenames in os.walk(xml_dir):
+        for fn in filenames:
+            if not fn.endswith(".xml"):
+                continue
+            try:
+                tree = ET.parse(os.path.join(dirpath, fn))
+            except ET.ParseError:
+                continue
+            for file_elem in tree.getroot().iter("File"):
+                name = file_elem.get("Name")
+                if not name:
+                    continue
+                seg = file_elem.get("Segment")
+                segments[name] = 0x80 if seg is None or seg == "0" else int(seg)
+                # Display lists declared in the XML carry a plain symbol, so they
+                # are not among the offset-named assets recovered from the
+                # reference and would never be walked for matrices otherwise.
+                offsets = dlists.setdefault(name, [])
+                for elem in file_elem:
+                    if elem.tag == "DList" and elem.get("Offset") and elem.get("Name"):
+                        # Carry the declared symbol: a matrix is named after the
+                        # display list that reaches it, and for these that is the
+                        # XML's name, not a synthesized <file>DL_<offset>.
+                        offsets.append((int(elem.get("Offset"), 16), elem.get("Name")))
+    return segments
+
+
+def extract_from_rom(rom_data, dma, dma_to_path, o2r_assets, segment_map, xml_dlists):
     """Extract Set_ headers and MTX from ROM."""
     assets = {}
     stats = {"set_count": 0, "mtx_count": 0, "files_scanned": 0}
@@ -403,9 +441,6 @@ def extract_from_rom(rom_data, dma, dma_to_path, o2r_assets):
         phys_end = int(dma_info.get("phys_end", "0x0"), 16)
         if phys_start == 0:
             continue
-        if "_scene" not in dma_name and "_room_" not in dma_name:
-            continue
-
         file_key = dma_to_path.get(dma_name)
         if file_key is None:
             continue
@@ -417,12 +452,18 @@ def extract_from_rom(rom_data, dma, dma_to_path, o2r_assets):
             compressed = rom_data[phys_start:phys_start + 1024 * 1024]
         file_data = yaz0_decompress(compressed)
 
-        # MM scene files are named after the scene with no _scene suffix, so the
-        # OoT test ("_scene" in the name) put every scene on the room segment.
-        seg_num = 3 if "_room_" in dma_name else 2
+        # The XML states the segment; do not infer it. The old test keyed off
+        # "_scene" in the name, which MM scene files do not have, so every scene
+        # was scanned on the room segment -- and objects were skipped entirely.
+        seg_num = segment_map.get(dma_name)
+        if seg_num is None:
+            seg_num = 3 if "_room_" in dma_name else 2
         stats["files_scanned"] += 1
 
-        commands = scan_scene_commands(file_data, 0)
+        # Only scenes and rooms carry a command list. Objects reach the matrix walk
+        # below through the display lists the reference already names.
+        is_scene_or_room = file_key.startswith("scenes/")
+        commands = scan_scene_commands(file_data, 0) if is_scene_or_room else []
 
         # Extract Set_ alternate headers
         alt_header_offsets = []
@@ -524,9 +565,11 @@ def extract_from_rom(rom_data, dma, dma_to_path, o2r_assets):
         for e in o2r_assets.get(file_key, []):
             if e.get("type") == "GFX" and "offset" in e:
                 dl_roots.append(int(e["offset"], 16) & 0x00FFFFFF)
+        named_roots = xml_dlists.get(dma_name, [])
 
         visited = set()
         queue = [(o, f"{dma_name}DL_{o:06X}") for o in dl_roots]
+        queue.extend((o & 0x00FFFFFF, sym) for o, sym in named_roots)
         while queue:
             cur_offset, cur_symbol = queue.pop(0)
             if cur_offset in visited:
@@ -564,6 +607,8 @@ def main():
     parser.add_argument("rom", help="Path to ROM file (.z64)")
     parser.add_argument("dma_json", help="Path to DMA table JSON")
     parser.add_argument("output_json", help="Path to output supplemental JSON")
+    parser.add_argument("--xml-dir", default="2ship/mm/assets/xml/N64_US",
+                        help="XML directory, read for each file's declared segment")
     args = parser.parse_args()
 
     print("Reading ROM...", file=sys.stderr)
@@ -589,7 +634,9 @@ def main():
     # process them in the wrong context (without proper segment decompression).
     # They continue to be created via AddAsset at runtime.
     print("Extracting from ROM...", file=sys.stderr)
-    rom_assets, rom_stats = extract_from_rom(rom_data, dma, dma_to_path, o2r_assets)
+    xml_dlists = {}
+    segment_map = build_segment_map(args.xml_dir, xml_dlists)
+    rom_assets, rom_stats = extract_from_rom(rom_data, dma, dma_to_path, o2r_assets, segment_map, xml_dlists)
     # Filter Set_ entries to only those that exist in the reference O2R.
     # Some alternate headers point to invalid data and are skipped by Torch's
     # try/catch at runtime. We exclude them to avoid crashes during pre-declaration.
