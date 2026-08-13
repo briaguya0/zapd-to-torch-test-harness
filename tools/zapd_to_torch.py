@@ -1007,7 +1007,10 @@ def main():
     # aborts on the first one.
     if allowed_types:
         deps = {
-            "DList": {"Array", "Vtx", "Mtx"},
+            # DLists reference textures by pointer; without the Texture
+            # declarations torch cannot resolve them into OTR hash references and
+            # emits the raw command instead, so every such DList mismatches.
+            "DList": {"Array", "Vtx", "Mtx", "Texture"},
             "Skeleton": {"Limb"},
             "PlayerAnimationData": {"PlayerAnimation"},
         }
