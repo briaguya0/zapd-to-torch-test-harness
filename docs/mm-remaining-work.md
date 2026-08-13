@@ -167,8 +167,8 @@ work and should follow completion, not interleave with it.
 
 ## The last few
 
-Standing: **50493 / 50496 passing, all 50496 generated**. What is left is the two
-MM text assets and one reference artefact.
+Standing: **50494 / 50496 passing, all 50496 generated**. The only mismatches
+left are the two MM text assets.
 
 ### Pointer and CollisionPoly arrays — fixed, and the reference rebuilt
 
@@ -202,15 +202,37 @@ The rebuild changed those three assets and *nothing else* — 3 hashes out of
 50496, no additions, no removals — which is as clean a confirmation as the fix
 could have asked for.
 
-### `gameplay_keepVtx_07ACF8` — reference data not present in the rom
+### `gameplay_keepVtx_07ACF8` — fixed
 
-One vertex array where two of twelve vertices differ in `tc[1]`: ours 992, the
-reference 480. **Ours matches the rom** — 0x03E0 is what is there. Searching the
-decompressed `gameplay_keep` for the reference's exact 12-vertex block finds
-nothing, so ZAPD did not copy this data from where the name says. Not diagnosed
-further; it is one asset and every cheap explanation was checked and rejected
-(the `VTX()` text round-trip is lossless, and `ZVtx::ParseRawData` reads plain
-Int16BE).
+Two of twelve vertices differed in `t`: ours 992 and 512, the reference 480 and
+224. Ours matched the rom exactly, and the reference's values appear nowhere in
+any of the 1535 decompressed files — so ZAPD computed them.
+
+It does. `ZDisplayList.cpp`, `GfxdCallback_Vtx`:
+
+```cpp
+if (self->GetName() == "gSunDL")
+    vtx.t = (((vtx.t >> 5) - 1) / 2) << 5;
+```
+
+31 texels becomes 15, 16 becomes 7. `gameplay_keep.xml` states the reason above
+`gSunSunsetTex`: the sun textures "should be 64x64, but they get broken into
+pieces in gSunDL, and ZAPD cannot currently handle that."
+
+The rule is the display list's *name*, so the harness applies the same rule —
+walk the list named gSunDL, mark the vertex arrays it loads with `sun_tc` — and
+Torch reproduces the arithmetic verbatim.
+
+Two earlier searches had concluded the data "is not in the rom", and both were
+wrong in ways worth recording:
+
+- The first read the o2r blobs as big-endian when Torch writes little-endian, so
+  every value compared was byte-swapped. It made ours look wrong against the rom
+  when ours was exactly right.
+- The second searched only files with `phys_end > phys_start`. In dmadata an
+  uncompressed file has `phys_end == 0`, so that test skipped most of the rom.
+
+The conclusion happened to survive both bugs, but it was not evidence.
 
 ### `object_horse_link_child_Skinlimb_00A138SkinLimbDL_00D500` — fixed
 

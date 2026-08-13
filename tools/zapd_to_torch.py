@@ -818,6 +818,10 @@ def add_undeclared_to_yaml(yaml_path, entries, file_key=None):
         if entry.get("array_type") == "VTX":
             lines += f'  zero_flag: true\n'
             lines += f'  null_cross_file: true\n'
+        # ZAPD rewrites the t coordinates of the vertices gSunDL loads; see
+        # generate_supplemental.extract_from_rom.
+        if entry.get("sun_tc"):
+            lines += f'  sun_tc: true\n'
         if "limb_type" in entry:
             lines += f'  limb_type: {entry["limb_type"]}\n'
         if "format" in entry:

@@ -79,6 +79,7 @@ SET_PATTERN = re.compile(r"Set_[0-9A-Fa-f]+")
 
 # F3DEX2 GBI
 G_MTX_F3DEX2 = 0xDA
+G_VTX_F3DEX2 = 0x01
 G_ENDDL = 0xDF
 CMD_END_MARKER = 0x14
 CMD_SET_ALTERNATE_HEADERS = 0x18
@@ -445,8 +446,20 @@ def build_segment_map(xml_dir, dlists):
 
 
 def extract_from_rom(rom_data, dma, dma_to_path, o2r_assets, segment_map, xml_dlists):
-    """Extract Set_ headers and MTX from ROM."""
+    """Extract Set_ headers and MTX from ROM.
+
+    Also returns the vertex arrays loaded by a display list named gSunDL. ZAPD
+    rewrites their t coordinates (ZDisplayList.cpp, GfxdCallback_Vtx):
+
+        if (self->GetName() == "gSunDL")
+            vtx.t = (((vtx.t >> 5) - 1) / 2) << 5;
+
+    which compensates for the sun textures being split into pieces ZAPD cannot
+    extract whole -- gameplay_keep.xml says as much above gSunSunsetTex. The rule
+    is the display list's name, so it is applied here the same way.
+    """
     assets = {}
+    sun_vtx = set()
     stats = {"set_count": 0, "mtx_count": 0, "files_scanned": 0}
 
     for dma_name, dma_info in dma.items():
@@ -604,12 +617,16 @@ def extract_from_rom(rom_data, dma, dma_to_path, o2r_assets, segment_map, xml_dl
                             "symbol": mtx_symbol,
                         })
                         stats["mtx_count"] += 1
+                if (op == G_VTX_F3DEX2 and cur_symbol == "gSunDL" and dw1 != 0
+                        and ((dw1 >> 24) & 0xFF) == seg_num):
+                    sun_vtx.add((file_key, dw1 & 0x00FFFFFF))
                 if op == G_DL_F3DEX2 and dw1 != 0 and ((dw1 >> 24) & 0xFF) == seg_num:
                     child = dw1 & 0x00FFFFFF
                     queue.append((child, f"{dma_name}DL_{child:06X}"))
                 pos += 8
 
-    return assets, stats
+    stats["sun_vtx"] = len(sun_vtx)
+    return assets, stats, sun_vtx
 
 
 # --- Main ---
@@ -649,7 +666,18 @@ def main():
     print("Extracting from ROM...", file=sys.stderr)
     xml_dlists = {}
     segment_map = build_segment_map(args.xml_dir, xml_dlists)
-    rom_assets, rom_stats = extract_from_rom(rom_data, dma, dma_to_path, o2r_assets, segment_map, xml_dlists)
+    rom_assets, rom_stats, sun_vtx = extract_from_rom(
+        rom_data, dma, dma_to_path, o2r_assets, segment_map, xml_dlists)
+
+    # Vertex arrays gSunDL loads carry ZAPD's rewritten t coordinates.
+    marked = 0
+    for file_key, offset in sun_vtx:
+        for e in o2r_assets.get(file_key, []):
+            if e.get("array_type") == "VTX" and int(e["offset"], 16) == offset:
+                e["sun_tc"] = True
+                marked += 1
+    print(f"  gSunDL vertex arrays marked: {marked} of {len(sun_vtx)} loads",
+          file=sys.stderr)
     # Filter Set_ entries to only those that exist in the reference O2R.
     # Some alternate headers point to invalid data and are skipped by Torch's
     # try/catch at runtime. We exclude them to avoid crashes during pre-declaration.

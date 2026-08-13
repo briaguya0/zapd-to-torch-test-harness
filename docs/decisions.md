@@ -538,3 +538,37 @@ already known: `SohArrayType` mirrors `ZResourceType`, so CollisionPoly is 28 an
 Pointer 29, which is what the reference's own header words say. Against today's
 reference the three match in length, type and count and differ only where the fix
 zeroes.
+
+### 39. gSunDL's vertices are supposed to disagree with the rom
+
+`gameplay_keepVtx_07ACF8` had six vertices whose `t` differed from the reference:
+ours 992 and 512, the reference 480 and 224. Ours matched the rom byte for byte,
+and the reference's values are in none of the 1535 decompressed files — so ZAPD
+computed them, and it says so plainly (`ZDisplayList.cpp`, `GfxdCallback_Vtx`):
+
+```cpp
+if (self->GetName() == "gSunDL")
+    vtx.t = (((vtx.t >> 5) - 1) / 2) << 5;
+```
+
+31 texels → 15, 16 → 7. `gameplay_keep.xml` gives the reason two lines above
+`gSunSunsetTex`: the sun textures "should be 64x64, but they get broken into
+pieces in gSunDL, and ZAPD cannot currently handle that." The rewrite keys off
+the display list's *name*, so the harness applies the same rule — walk the list
+named gSunDL, flag the vertex arrays it loads — rather than hardcoding an
+address or, worse, copying values out of the reference.
+
+This one had been written off as "reference data not present in the rom", on the
+strength of two searches that were both broken:
+
+1. The o2r blobs were read big-endian. Torch writes little-endian, so every
+   value compared was byte-swapped — which made *our* output look wrong against
+   the rom when it was exactly right. The tell was there to be noticed: a "rom"
+   read of 32 against an "ours" of 8192 is `0x0020` versus `0x2000`.
+2. The rom-wide search skipped any dma entry with `phys_end <= phys_start`. In
+   dmadata an uncompressed file has `phys_end == 0`, so that test threw away most
+   of the rom. 1535 files were searchable; the broken loop searched a fraction.
+
+The conclusion survived both bugs by luck. Two wrong measurements agreeing is
+not corroboration, and "I could not find it" is only evidence once the search
+itself has been checked.

@@ -5799,7 +5799,8 @@
       "symbol": "gameplay_keepVtx_07ACF8",
       "count": 12,
       "array_type": "VTX",
-      "in_reference": true
+      "in_reference": true,
+      "sun_tc": true
     },
     {
       "name": "gameplay_keepVtx_07ADB8",
