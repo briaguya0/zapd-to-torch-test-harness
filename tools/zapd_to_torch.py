@@ -433,6 +433,35 @@ def write_yaml(path, segment, seg_base, assets, extra_segments=None, external_fi
                 f.write(_format_asset(asset))
 
 
+def get_out_name_from_xml(xml_path):
+    """Return the name an XML's first File is emitted under (OutName, else Name)."""
+    try:
+        tree = ET.parse(xml_path)
+        for file_elem in tree.getroot().iter("File"):
+            return file_elem.get("OutName", file_elem.get("Name"))
+    except (ET.ParseError, FileNotFoundError):
+        return None
+    return None
+
+
+def get_dma_name_from_xml(xml_path):
+    """Return the DMA file name an XML describes, from its first File element.
+
+    MM's archive XMLs are not named after the file they contain --
+    archives/icon_item_static.xml holds <File Name="icon_item_static_yar">. An
+    ExternalFile reference names the XML, so the DMA name has to be read out of it
+    rather than derived from the path, or the reference is silently dropped and
+    every display list pointing into that file fails to resolve.
+    """
+    try:
+        tree = ET.parse(xml_path)
+        for file_elem in tree.getroot().iter("File"):
+            return file_elem.get("Name")
+    except (ET.ParseError, FileNotFoundError):
+        return None
+    return None
+
+
 def get_segment_from_xml(xml_path):
     """Parse an XML file and return the segment number from the first File element."""
     try:
@@ -519,17 +548,24 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
     out_prefix = os.path.basename(os.path.normpath(out_dir))
     for ext_elem in root.iter("ExternalFile"):
         ext_xml_path = ext_elem.get("XmlPath", "")
-        ext_dma_name = os.path.splitext(os.path.basename(ext_xml_path))[0]
+        ext_full_path_probe = os.path.join(xml_dir, ext_xml_path) if xml_dir else None
+        ext_dma_name = None
+        if ext_full_path_probe:
+            ext_dma_name = get_dma_name_from_xml(ext_full_path_probe)
+        if not ext_dma_name:
+            ext_dma_name = os.path.splitext(os.path.basename(ext_xml_path))[0]
         if ext_dma_name in dma_table:
-            ext_full_path = os.path.join(xml_dir, ext_xml_path) if xml_dir else None
+            ext_full_path = ext_full_path_probe
             # Only include if the external XML has texture/DList assets we can use
             if ext_full_path and not xml_has_asset_types(ext_full_path, allowed_types):
                 continue
             ext_seg = get_segment_from_xml(ext_full_path) if ext_full_path else None
             if ext_seg is not None:
                 extra_segments.append((ext_seg, ext_dma_name))
-                ext_category = os.path.dirname(ext_xml_path)
-                external_files.append(f"{out_prefix}/{ext_category}/{ext_dma_name}.yml")
+                ext_category = get_output_category(ext_xml_path)
+                ext_out_name = get_out_name_from_xml(ext_full_path) or ext_dma_name
+                ext_yml = f"{ext_category}/{ext_out_name}.yml" if ext_category else f"{ext_out_name}.yml"
+                external_files.append(f"{out_prefix}/{ext_yml}")
 
     for file_elem in root.iter("File"):
         dma_name = file_elem.get("Name")

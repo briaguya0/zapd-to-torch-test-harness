@@ -122,7 +122,46 @@ MM's command set is in `ZAPD/OtherStructs/CutsceneMM_Commands.h`, separate from
 
 ---
 
-## Phase B — Display lists (438)
+## Phase B — Display lists (33 left of 438)
+
+Most of this is done; see the git history. What remains:
+
+**25 `object_mask_*` files, one display list each, plus 2 in object_dog and 6 in
+`code/`.** All are an unresolved `G_VTX`: torch emits the raw opcode with
+`(ptr & 0x0FFFFFFF) + 1`, where the reference emits `G_VTX_OTR_HASH` plus the
+vertex asset's CRC64.
+
+The confusing part, and where to pick this up: **the vertex is declared and the
+lookup does not report a miss.** For `object_mask_bakuretu_DL_000440` the target
+is `object_mask_bakuretuVtx_000250`, which we generate, declared as `MM:ARRAY`
+`offset: 0x000250` `array_type: VTX` on segment 10 — the same segment the display
+list is on. `ExportVtx`'s not-found branch in `OoTDListHelpers.cpp` is what
+produces the `+1` output, but its `SPDLOG_WARN("VTX export: NOT FOUND vtx …")`
+never appears in a `logging: WARN` run, while 10467 successful `Found vtx` lines
+do. The string is present in the binary and the binary is current, so the two
+observations contradict each other and one of the assumptions behind them is
+wrong. Resolve that before changing any code.
+
+Useful technique: the reference's own hash names its target. Rebuild torch's
+CRC64 table from `lib/strhash64/StrHash64.cpp`, hash every manifest key, and look
+up the two words the reference writes after the command. That is how the
+`icon_item_static_yar` texture below was identified.
+
+### Fixed here
+
+**External files resolved by their declared name.** MM's archive XMLs are not
+named after the file they contain: `archives/icon_item_static.xml` holds
+`<File Name="icon_item_static_yar">`. An `ExternalFile` reference names the *XML*,
+so deriving the DMA name from the path silently dropped the reference and every
+display list pointing into that file failed to resolve. Reading `File Name` out
+of the referenced XML fixed all 8 `icon_item_vtx_static` failures. The emitted
+yml path has to follow `OutName`, not the XML stem.
+
+**portVersion.** `score.sh` never passed `-u`, so the file was simply absent. MM
+stamps 5.0.0, matching 2ship's CMake project version; the reference reads
+`01 0005 0000 0000` with the endianness byte from `PORT_VERSION_ENDIANNESS=ON`.
+
+## Original phase B notes (438)
 
 Two unrelated problems sharing a type:
 

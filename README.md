@@ -22,8 +22,8 @@ git clone --recurse-submodules https://github.com/briaguya0/zapd-to-torch-test-h
 Against `manifests/ntsc_u.json` (50496 assets, OTRExporter reference for NTSC-U 1.0):
 
 ```
-PASS  50393   (99.8%)
-FAIL     83
+PASS  50403   (99.8%)
+FAIL     74
 EXTRA     0   (20 of the reference not generated at all)
 ```
 

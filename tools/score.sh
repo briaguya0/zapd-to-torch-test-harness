@@ -17,6 +17,9 @@ TYPES="${1:-}"
 ROM="$(ls roms/mm/${VERSION}_*.z64 2>/dev/null | head -1)"
 MANIFEST="manifests/${VERSION}.json"
 XML_DIR="2ship/mm/assets/xml/N64_US"
+# Stamped into the archive's portVersion file. 2ship's CMake project version;
+# the reference reads 01 0005 0000 0000 (endianness byte + 5.0.0).
+PORT_VERSION="${PORT_VERSION:-5.0.0}"
 
 [[ -f "$ROM" ]]      || { echo "ERROR: no ROM for $VERSION in roms/mm/" >&2; exit 1; }
 [[ -f "$MANIFEST" ]] || { echo "ERROR: no manifest at $MANIFEST" >&2; exit 1; }
@@ -36,10 +39,10 @@ python3 tools/zapd_to_torch.py "${gen_args[@]}" || exit 1
 
 # torch needs the distrobox toolchain; run it there if available
 if command -v distrobox >/dev/null 2>&1 && [[ -z "${IN_DISTROBOX:-}" ]]; then
-    distrobox enter soh -- bash -lc "cd '$ROOT' && torch/build/torch o2r -s assets/yml -d '$OUT' '$ROM'" \
+    distrobox enter soh -- bash -lc "cd '$ROOT' && torch/build/torch o2r -s assets/yml -d '$OUT' -u $PORT_VERSION '$ROM'" \
         > "$OUT/torch.log" 2>&1
 else
-    torch/build/torch o2r -s assets/yml -d "$OUT" "$ROM" > "$OUT/torch.log" 2>&1
+    torch/build/torch o2r -s assets/yml -d "$OUT" -u "$PORT_VERSION" "$ROM" > "$OUT/torch.log" 2>&1
 fi
 rc=$?
 # [[ -f dir/*.o2r ]] does not glob, so locate the archive explicitly
