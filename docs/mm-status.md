@@ -5,9 +5,9 @@ the OTRExporter reference for NTSC-U 1.0).
 
 ```
 generated 49354 of 50496 reference assets
-  PASS  48310      (95.7%)
-  FAIL   1078
-  EXTRA   132
+  PASS  48892      (96.8%)
+  FAIL    780
+  EXTRA     0
 ```
 
 Reference rebuilt from `briaguya0/2ship2harkinian` `deterministic-extraction`
@@ -39,6 +39,7 @@ rather than writing MM copies.
 | MM:SKELETON | 213 / 214 |
 | MM:LIMB | 3495 / 3495 |
 | MM:PATH | 688 / 688 |
+| MM:ROOM | 582 / 595 |
 | MM:COLLISION | 286 / 290 |
 | BLOB | 234 |
 
@@ -46,16 +47,14 @@ rather than writing MM copies.
 
 | Type | Failing | Diagnosis |
 |------|--------:|-----------|
-| *(auto-discovered)* | 621 | assets torch generates itself, so no YAML declares them: **522 paths**, 79 rooms, 20 audio samples |
 | GFX | 438 | not yet diagnosed |
-| MM:ROOM | 595 | MM room commands torch does not implement; see mm-remaining-work.md |
+| MM:ROOM | 13 | scenes only; all 414 rooms pass |
 | MM:SCENE | 102 | MM's scene command set diverges from OoT's; see paths below |
-| MM:CUTSCENE | 17 | MM's cutscene command set diverges from OoT's |
+| MM:CUTSCENE | 318 | MM cutscene command set differs from OoT's; they are correctly named now and therefore compared, where before they were extras or missing |
 | MM:COLLISION | 4 | not yet diagnosed |
 | MM:TEXT | 2 | MM's message format differs from OoT's |
 | MM:ARRAY | 1 | not yet diagnosed |
 | MM:SKELETON | 1 | not yet diagnosed |
-| EXTRA | 132 | generated but absent from the reference |
 
 ### MM:LIMB — resolved
 

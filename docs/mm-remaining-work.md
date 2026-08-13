@@ -1,7 +1,8 @@
 # Plan for the remaining 1600 failures
 
-Standing: **48310 pass, 1078 fail, 132 extra** of 50496. Phase A2 (paths) is
-**done** — 688/688 byte-identical.
+Standing: **48892 pass, 780 fail, 0 extra** of 50496. Phase A is done except
+cutscenes: paths 688/688, rooms 414/414, scenes 168/181, and nothing is emitted
+that the reference does not have.
 Every figure below is measured, and each diagnosis names the source line it came
 from. See `mm-status.md` for the scoreboard and `decisions.md` for how we got here.
 
@@ -85,23 +86,39 @@ straight from ROM, so they are deterministic and simply need carrying through.
 
 </details>
 
-### A3. Rooms
+### A1/A3 — DONE (rooms 414/414, scenes 168/181)
 
-414 of 595 are short by exactly one byte, at a position that varies with command
-order, so it is per-command rather than one global field. Torch already writes
-`SetMesh`'s leading `data` byte (`OoTSceneCommandWriter.cpp:341-345`), so it is not
-that one — identify the specific commands by walking a failing room against
-`RoomExporter.cpp`'s switch.
+Implemented in torch `d1f22c6` and `7405193`. Five divergences, none of which was
+the one the plan guessed at:
 
-### A4. Cutscenes — 17 failing and all 132 extras
+- **`SetRoomBehavior`** — OoT writes `gameplayFlags2` whole; MM unpacks it into the
+  five fields it encodes, six bytes against five. This was the entire "ours is one
+  byte short" on all 414 rooms.
+- **Room names** — MM zero-pads the index, `_room_00` not `_room_0`.
+- **`0x19`** — MM writes *no body*; torch was writing OoT's five bytes.
+- **`0x1A`/`0x1B`/`0x1C`/`0x1E`** — four commands OoT lacks. `SetMinimapList`
+  carries no count and takes one entry per room, so `SetRoomList` now records the
+  room count in the write context.
+- **`SetCutscenes`** — MM carries a list where OoT carries one pointer, and ZAPD
+  rewrites the opcode to `0x1F`. Entries name their cutscene off the scene's base
+  name, and a declared cutscene keeps its declared name.
 
-We emit 132 `CutsceneData` assets the reference does not, 72 of them under `Set_`
-alternate-header names. The reference does contain `Set_` assets (2162 of them), so
-this is not a blanket naming rule — our discovery is finding cutscenes at offsets
-ZAPD does not emit. `SetCutscenesMM = 0x1F` being a synthetic opcode is the likely
-reason and should be read first.
+13 scenes remain, undiagnosed.
 
-**Remaining phase A yield: ~750 assets (rooms, scenes, cutscenes, extras).**
+### A4. Cutscene contents — 318 failing, now the largest category
+
+The naming half is fixed and extras are at zero, so every cutscene the reference
+has is now generated under the right name and compared. Their *contents* are still
+serialized with OoT's command set.
+
+The count rose from 17 as a direct result: those cutscenes previously had no
+correct name, so they counted as extras or as not-generated rather than as
+mismatches. This is progress made visible, not a regression.
+
+MM's command set is in `ZAPD/OtherStructs/CutsceneMM_Commands.h`, separate from
+`CutsceneOoT_Commands.h`. Torch's `CutsceneSerializer` implements OoT's.
+
+**Remaining phase A: cutscene contents (318) and 13 undiagnosed scenes.**
 
 ---
 
@@ -155,7 +172,7 @@ Still deferred, unchanged, and tracked in `mm-status.md`:
 
 1. ~~**A2 paths.**~~ Done — and it established the `game:` config key and the
    branch-don't-fork pattern the rest of phase A should follow.
-2. **A1 + A3 + A4**, which are one change to the scene/room command writer.
+2. ~~**A1 + A3.**~~ Done. **A4** (cutscene contents) is what remains of phase A.
 3. **B**, after A, since some DList failures sit inside rooms and may move.
 4. **C** last.
 

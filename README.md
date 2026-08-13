@@ -22,13 +22,14 @@ git clone --recurse-submodules https://github.com/briaguya0/zapd-to-torch-test-h
 Against `manifests/ntsc_u.json` (50496 assets, OTRExporter reference for NTSC-U 1.0):
 
 ```
-PASS  48310   (95.7%)
-FAIL   1078
-EXTRA   132
+PASS  48892   (96.8%)
+FAIL    780
+EXTRA     0
 ```
 
 Byte-identical using the **OoT factories unmodified**: TEXTURE 13542/13542,
-MM:LIMB 3495/3495, MM:PATH 688/688, MM:ANIMATION 1755/1755, MM:PLAYER_ANIMATION 695/695,
+MM:LIMB 3495/3495, MM:PATH 688/688, MM:ANIMATION 1755/1755,
+rooms 414/414, MM:PLAYER_ANIMATION 695/695,
 MM:MTX 11/11.
 
 The reference is built from `briaguya0/2ship2harkinian` branch
