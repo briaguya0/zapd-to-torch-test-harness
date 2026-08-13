@@ -40,10 +40,10 @@ rather than writing MM copies.
 | Type | Failing | Diagnosis |
 |------|--------:|-----------|
 | MM:LIMB | 1929 | see below |
-| *(untyped)* | 621 | supplemental-only entries the scorer cannot attribute; needs the scorer to read supplemental too, not a real category |
+| *(auto-discovered)* | 621 | assets torch generates itself, so no YAML declares them: **522 paths**, 79 rooms, 20 audio samples |
 | GFX | 438 | not yet diagnosed |
-| MM:ROOM | 414 | not yet diagnosed |
-| MM:SCENE | 102 | not yet diagnosed |
+| MM:ROOM | 414 | plus 79 auto-discovered rooms below — ~493 of 595 rooms wrong, the largest single area after limbs |
+| MM:SCENE | 102 | MM's scene command set diverges from OoT's; see paths below |
 | MM:CUTSCENE | 17 | MM's cutscene command set diverges from OoT's |
 | MM:COLLISION | 4 | not yet diagnosed |
 | MM:TEXT | 2 | MM's message format differs from OoT's |
@@ -77,10 +77,15 @@ guessing here produces 1929 plausibly-wrong assets.
 
 ## Deferred, with reasons
 
-- **MM:PATH (688 assets).** The path factory needs `num_paths`; OoT recovered it by
-  scanning scene commands, which the MM supplemental generator does not do yet.
-  Without it the factory reads one entry and follows a garbage pointer, aborting
-  extraction. Currently in `DEFERRED_TYPES` in `generate_supplemental.py`.
+- **MM:PATH (688 assets).** Declaring them from supplemental aborts extraction: the
+  factory needs `num_paths`, which OoT recovered by scanning scene commands, and
+  without it follows a garbage pointer. They are in `DEFERRED_TYPES` in
+  `generate_supplemental.py`.
+
+  Deferring does **not** remove them from the output — the scene factory discovers
+  paths from scene commands on its own, and 522 of those come out wrong. So paths
+  are not a supplemental problem so much as a scene-command problem, and they land
+  with the MM:ROOM / MM:SCENE work rather than beside it.
 - **Arrays of unsupported element kinds (4 in XML, 2 in the reference).**
   `Pointer/Gfx`, `Scalar/x8`, `CollisionPoly` — the array factory builds only VTX
   and Vec3s. Skipped and tallied at both ends.
