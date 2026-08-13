@@ -5,9 +5,10 @@ the OTRExporter reference for NTSC-U 1.0).
 
 ```
 generated 49354 of 50496 reference assets
-  PASS  48892      (96.8%)
+  PASS  49587      (98.2%)
   FAIL    780
   EXTRA     0
+  not generated 129
 ```
 
 Reference rebuilt from `briaguya0/2ship2harkinian` `deterministic-extraction`
@@ -39,6 +40,7 @@ rather than writing MM copies.
 | MM:SKELETON | 213 / 214 |
 | MM:LIMB | 3495 / 3495 |
 | MM:PATH | 688 / 688 |
+| MM:TEXTURE_ANIMATION | 293 / 293 |
 | MM:ROOM | 582 / 595 |
 | MM:COLLISION | 286 / 290 |
 | BLOB | 234 |

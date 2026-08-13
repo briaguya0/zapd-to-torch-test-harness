@@ -200,6 +200,22 @@ def extract_from_o2r(zf):
             stats["extracted"] += 1
             continue
 
+        # Other zero-byte companions: MM emits one per texture-animation params
+        # block (TexScrollParams, ColorParams, ...). Unlike the limb tables above
+        # these name their own offset, so no post-processing is needed.
+        if len(data) == 0:
+            m = re.search(r"_([0-9A-Fa-f]{4,8})$", asset_name)
+            if m:
+                assets.setdefault(file_key, []).append({
+                    "name": asset_name,
+                    "type": "BLOB",
+                    "symbol": asset_name,
+                    "offset": f"0x{int(m.group(1), 16):06X}",
+                    "size": 0,
+                })
+                stats["extracted"] += 1
+            continue
+
         if len(data) < 64:
             continue
 
