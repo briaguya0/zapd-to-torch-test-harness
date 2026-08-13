@@ -162,3 +162,50 @@ rather than half-built.
 
 Adding GC US as a second target. That is the payoff for the name-based segment
 work and should follow completion, not interleave with it.
+
+---
+
+## The last few, and why two of them are not fixable here
+
+Standing after the endgame pass: **50489 / 50496**, 3 failing and 4 not generated.
+
+### Blocked on ZAPD determinism (3 assets)
+
+`ArrayExporter.cpp` handles Vertex and Vector arrays explicitly and sends
+everything else through an `else` branch that casts the element to `ZScalar` and
+writes `scal->scalarType`. For a Pointer or CollisionPoly element that member is
+uninitialized, so the reference contains 4 bytes of stale memory per element and
+no value at all:
+
+```
+sTurtleGreatBayTempleColPolygons   19 elements x 4 bytes: 7b09e07a 23b40967 1307...
+object_hanareyama_obj_DLArray_004638  54 x 4:             e8a2641b 48765e1b d849...
+```
+
+None of those are valid `ZScalarType` values. This is the same class as the limb
+`totalVtxCount` residue that ZAPDTR #37 fixed, and it needs the same treatment: a
+ZAPD change plus a rebuilt reference. Emitting anything here would be guessing at
+uninitialized memory.
+
+Affected: `sTurtleGreatBayTempleColPolygons`, `sTurtleGreatBayTempleColPolygons2`,
+`object_hanareyama_obj_DLArray_004638`.
+
+### `gameplay_keepVtx_07ACF8` — reference data not present in the rom
+
+One vertex array where two of twelve vertices differ in `tc[1]`: ours 992, the
+reference 480. **Ours matches the rom** — 0x03E0 is what is there. Searching the
+decompressed `gameplay_keep` for the reference's exact 12-vertex block finds
+nothing, so ZAPD did not copy this data from where the name says. Not diagnosed
+further; it is one asset and every cheap explanation was checked and rejected
+(the `VTX()` text round-trip is lossless, and `ZVtx::ParseRawData` reads plain
+Int16BE).
+
+### `object_horse_link_child_Skinlimb_00A138SkinLimbDL_00D500` — not generated
+
+A skin-limb display list. Undiagnosed.
+
+### MM text (2 assets)
+
+`message_data_static` (ours 86637, reference 448796) and
+`staff_message_data_static`. MM's message format differs from OoT's; this is the
+only remaining item that is real implementation work rather than a quirk.

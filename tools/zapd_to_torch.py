@@ -164,6 +164,14 @@ def convert_array(elem):
     for child in elem:
         if child.tag == "Vtx":
             entry["array_type"] = "VTX"
+        elif child.tag == "Scalar":
+            # ZScalarType, from ZScalar.h. Only the widths MM actually uses.
+            scalar_types = {"s8": 1, "u8": 2, "x8": 3, "s16": 4, "u16": 5, "x16": 6,
+                            "s32": 7, "u32": 8, "x32": 9}
+            st = scalar_types.get((child.get("Type") or "").lower())
+            if st is not None:
+                entry["array_type"] = "Scalar"
+                entry["scalar_type"] = st
         elif child.tag == "Vector":
             vec_type = child.get("Type", "s16")
             dims = child.get("Dimensions", "3")
@@ -630,6 +638,15 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
 
         is_room_file = xml_rel_path.startswith("scenes/") and "_room_" in out_name
 
+        # A LimbTable states how many limbs actually exist, which can be fewer than
+        # the skeleton header claims (object_fsn: header says 18, table says 17,
+        # and the xml comments on the discrepancy). ZAPD trusts the table.
+        limb_table_count = None
+        for elem in file_elem:
+            if elem.tag == "LimbTable" and elem.get("Count"):
+                limb_table_count = int(elem.get("Count"))
+                break
+
         assets = []
         for elem in file_elem:
             if elem.tag in SKIP_ELEMENTS:
@@ -650,6 +667,8 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
             converter = CONVERTERS.get(elem.tag, convert_generic)
             entry = converter(elem)
             if entry:
+                if elem.tag == "Skeleton" and limb_table_count is not None:
+                    entry["limb_table_count"] = limb_table_count
                 # Text assets need the code section's physical ROM address
                 if elem.tag in ("Text", "TextMM") and "code" in dma_table:
                     entry["code_phys_start"] = dma_table["code"]["phys_start"]
