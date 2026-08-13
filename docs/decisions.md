@@ -164,7 +164,31 @@ had no concept of them — it would have emitted `0xFFFFFFFF` as a real segment
 base. They carry `"absent": true` so downstream can skip them deliberately, and
 so the 17 names aren't quietly lost either.
 
-### 17. Reference o2r archives are disposable; the manifests are the reference
+### 17. The filelist emits `phys_start`, and omits absent entries
+
+`phys_start` is the ROM offset a segment base points at, so that is what the
+`Files:` map carries. The 17 absent entries are **left out** rather than emitted
+with their `0xFFFFFFFF`: naming one then fails loudly at extraction instead of
+silently producing a segment pointed at `0xFFFFFFFF`.
+
+Lives at `assets/yml/<version>.filelist.yml`, whitelisted in
+`assets/yml/.gitignore`. `filelist:` in the rom config is a sibling of `path:`,
+resolved against the `-s` directory — not inside `config:`.
+
+### 18. PR #253 verified against a real ROM before anything depends on it
+
+Rather than assume it works, a control test: the same BLOB addressed by DMA file
+name versus by hex ROM address, extracted from the MM ROM, must be byte-identical.
+It is — both for an uncompressed file (`dmadata`) and a Yaz0-compressed one
+(`object_link_child`, the 1513-of-1552 case).
+
+The bare-`0` fix (decision 7) was verified the same way, by reverting it and
+rebuilding: `offset: 0` aborts with `std::out_of_range` from
+`unordered_map::at` and produces no archive at all. Restoring it reproduces the
+correct output byte-for-byte. So the fix guards a case that genuinely breaks,
+which was previously only a claim.
+
+### 19. Reference o2r archives are disposable; the manifests are the reference
 
 `test_assets.py` scores against `manifests/<version>.json`, not against an
 archive, so the archives themselves need not be kept once hashed.
