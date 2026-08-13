@@ -5,10 +5,15 @@ the OTRExporter reference for NTSC-U 1.0).
 
 ```
 generated 49354 of 50496 reference assets
-  PASS  45693      (90.5%)
-  FAIL   3529
+  PASS  47622      (94.3%)
+  FAIL   1600
   EXTRA   132
 ```
+
+Reference rebuilt from `briaguya0/2ship2harkinian` `deterministic-extraction`
+(`a4a426c6f`), which bumps ZAPDTR past `be1c68a` (#37). That changed 2181 assets in
+the reference itself — 1929 limbs, 251 rooms, 1 array — and the 1929 is exactly the
+set of limbs that had been unmatchable.
 
 OoT is unaffected throughout: `./tools/oot_gate.sh pal_gc` → 35386 matching, 0
 mismatched, 0 not generated, 0 extra.
@@ -32,6 +37,7 @@ rather than writing MM copies.
 | GFX | 13023 / 13461 |
 | MM:ARRAY | 10476 / 10477 |
 | MM:SKELETON | 213 / 214 |
+| MM:LIMB | 3495 / 3495 |
 | MM:COLLISION | 286 / 290 |
 | BLOB | 234 |
 
@@ -39,10 +45,9 @@ rather than writing MM copies.
 
 | Type | Failing | Diagnosis |
 |------|--------:|-----------|
-| MM:LIMB | 1929 | see below |
 | *(auto-discovered)* | 621 | assets torch generates itself, so no YAML declares them: **522 paths**, 79 rooms, 20 audio samples |
 | GFX | 438 | not yet diagnosed |
-| MM:ROOM | 414 | plus 79 auto-discovered rooms below — ~493 of 595 rooms wrong, the largest single area after limbs |
+| MM:ROOM | 414 | plus 79 auto-discovered below — ~493 of 595 wrong, now the largest area. ZAPD's uninitialized room fields are fixed; what remains is ours (our output is a byte short — torch writes one fewer field than MM's room command set has) |
 | MM:SCENE | 102 | MM's scene command set diverges from OoT's; see paths below |
 | MM:CUTSCENE | 17 | MM's cutscene command set diverges from OoT's |
 | MM:COLLISION | 4 | not yet diagnosed |
@@ -51,37 +56,20 @@ rather than writing MM copies.
 | MM:SKELETON | 1 | not yet diagnosed |
 | EXTRA | 132 | generated but absent from the reference |
 
-> **Pending fix.** The limb and part of the room gap are ZAPD writing uninitialized
-> memory, fixed upstream by ZAPDTR `be1c68a` (#37) and picked up by
-> `briaguya0/2ship2harkinian` branch `deterministic-extraction`. These numbers are
-> against the old reference and should be re-measured once a reference is rebuilt
-> from that branch. See decisions 27 and 28.
+### MM:LIMB — resolved
 
-### MM:LIMB — `skinVtxCnt` on limbs that should not have one
+`SkinAnimatedLimbData::totalVtxCount` had no initializer, and `SkeletonLimbExporter`
+writes it for every limb regardless of type, so a Standard limb — which never
+populates `segmentStruct` — emitted whatever was in memory. ZAPDTR `be1c68a` (#37)
+gives it `= 0`.
+
+The old reference's Standard limbs carried 0 on 1479 of 3495 (those matched) and
+varying values in runs on the rest. With the rebuilt reference **MM:LIMB is
+3495/3495**. Nothing in torch changed — the reference was non-deterministic, and no
+amount of matching would have fixed it.
 
 The whole diff is a single `uint16` at body offset 6, `skinVtxCnt`. Torch writes 0;
 the reference writes a nonzero value on limbs whose type does not use the field.
-
-Distribution across Standard limbs in the reference:
-
-```
-0x0000  x1479     <- these are the ones that pass
-0x0006  x240
-0x00B8  x167
-0x0148  x128
-0x0004  x83
-0x0007  x80
-...
-```
-
-The values vary rather than being one constant, and they appear in large runs. That
-is stale memory. **Confirmed and fixed upstream**: `SkinAnimatedLimbData::totalVtxCount`
-had no initializer, and `SkeletonLimbExporter` writes it for every limb regardless of
-type, so a Standard limb — which never populates `segmentStruct` — emitted whatever
-was there. ZAPDTR `be1c68a` (#37) gives it `= 0`.
-
-This is not something torch should emulate: the reference itself was
-non-deterministic. It needs a rebuilt reference, not a matching bug.
 
 ## Deferred, with reasons
 

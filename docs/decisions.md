@@ -338,3 +338,19 @@ where a zero belongs — ZAPD's, fixed by 27) *and* our output is one byte short
 which is torch writing one fewer field. Only the first is addressed by the
 submodule bump. MM's room command set diverging from OoT's is still real work,
 and the rebuilt reference is what will separate the two.
+
+### 29. The determinism fix landed, and the numbers confirm the diagnosis exactly
+
+Reference rebuilt from `a4a426c6f` (CI run 31719199796). Diffing the old manifest
+against the new one: **2181 assets changed in the reference itself** — 1929 limbs,
+251 rooms, 1 array. The 1929 is precisely the set of limbs that had been failing.
+
+MM:LIMB went 1566/3495 → **3495/3495** with no torch change at all. Overall
+45693 → **47622** passing, 3529 → 1600 failing.
+
+Rooms did *not* improve (still 414 + 79). Both problems were real, as decision 28
+said: ZAPD's uninitialized fields are now fixed, and what remains is ours.
+
+`supplemental/ntsc_u.json` is byte-identical across the rebuild, which is the
+expected result — it captures names, offsets, types and counts, and the fix changed
+field *values*, not structure.
