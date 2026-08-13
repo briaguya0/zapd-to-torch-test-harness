@@ -75,7 +75,7 @@ raw container bytes and every texture in it decodes to garbage.
 The DMA table agrees it is uncompressed (`phys_end == 0`), and it is — the
 *container* is stored plain. The compression is one level down.
 
-## Proposed fix
+## The fix (implemented)
 
 A new `CompressionType` in Torch whose decode step walks the table and
 concatenates the Yaz0 sub-files. Every existing offset path then works unchanged,
@@ -95,4 +95,6 @@ misidentifying unrelated files. Something like:
 That keeps the change additive — no existing YAML sets the key, so OoT extraction
 cannot be affected.
 
-This is Phase 5 work (a Torch feature), not a harness or config fix.
+Implemented in torch `mm-support` `3256012`. `zapd_to_torch.py` emits the key for
+every XML under `archives/`. Result: MM textures went from 9495/10014 to
+**10014/10014** byte-identical against the reference, with 0 extra.

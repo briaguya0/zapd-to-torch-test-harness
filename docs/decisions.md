@@ -241,7 +241,9 @@ auto-detection**: a container starts with its `dataStart` word (`0000003C`), whi
 is plausible leading data for an unrelated file. Explicit opt-in also keeps the
 change additive, so OoT extraction cannot be affected.
 
-Phase 5 work. Full write-up in `mm-yar-archives.md`.
+**Implemented** in torch `mm-support` `3256012` as `CompressionType::CMPDMA`,
+opt-in via `compression: CMPDMA`. MM textures went 9495/10014 → 10014/10014
+byte-identical. Full write-up in `mm-yar-archives.md`.
 
 *Rejected:* Torch's existing `preprocess:` hook. It decompresses the whole ROM
 (`mio0-comptool`), which is the wrong layer for a per-file container.

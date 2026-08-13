@@ -281,7 +281,8 @@ def yaml_value(v):
     return str(v)
 
 
-def _format_config(segment, seg_base, extra_segments=None, external_files=None, virtual=None, directory=None):
+def _format_config(segment, seg_base, extra_segments=None, external_files=None, virtual=None, directory=None,
+                   compression=None):
     """Format the :config: section of a YAML file."""
     lines = [":config:\n", "  segments:\n", f"    - [ {segment}, {seg_base} ]\n"]
     if extra_segments:
@@ -291,6 +292,8 @@ def _format_config(segment, seg_base, extra_segments=None, external_files=None, 
         lines.append(f"  virtual: [ {virtual[0]}, {virtual[1]} ]\n")
     if directory:
         lines.append(f"  directory: {directory}\n")
+    if compression:
+        lines.append(f"  compression: {compression}\n")
     if external_files:
         lines.append("  external_files:\n")
         for ef in external_files:
@@ -370,12 +373,14 @@ def _asset_sort_key(asset):
         return (0, asset.get("symbol", ""))
     return (1, asset.get("symbol", ""))
 
-def write_yaml(path, segment, seg_base, assets, extra_segments=None, external_files=None, virtual=None, directory=None):
+def write_yaml(path, segment, seg_base, assets, extra_segments=None, external_files=None, virtual=None, directory=None,
+               compression=None):
     """Write a Torch YAML file, merging with existing content if the file exists."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     assets = sorted(assets, key=_asset_sort_key)
 
-    new_config = _format_config(segment, seg_base, extra_segments, external_files, virtual, directory=directory)
+    new_config = _format_config(segment, seg_base, extra_segments, external_files, virtual, directory=directory,
+                                compression=compression)
 
     if os.path.exists(path):
         old_config, old_assets, existing_names = _parse_existing_yaml(path)
@@ -617,7 +622,13 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
                 if sys_matrix_yml not in file_external_files:
                     file_external_files.append(sys_matrix_yml)
 
+        # Files under archives/ are MM CmpDma containers: a table of u32 offsets
+        # followed by one Yaz0 stream per asset. They carry no magic, so Torch
+        # cannot sniff them and the file has to say so. See docs/mm-yar-archives.md.
+        compression = "CMPDMA" if xml_rel_path.startswith("archives/") else None
+
         write_yaml(yaml_path, segment, seg_base, assets,
+                   compression=compression,
                    extra_segments=file_extra_segments or None,
                    external_files=file_external_files or None,
                    virtual=virtual,
