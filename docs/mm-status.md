@@ -5,10 +5,10 @@ the OTRExporter reference for NTSC-U 1.0).
 
 ```
 generated 49354 of 50496 reference assets
-  PASS  49587      (98.2%)
-  FAIL    780
+  PASS  50092      (99.2%)
+  FAIL    384
   EXTRA     0
-  not generated 129
+  not generated  20
 ```
 
 Reference rebuilt from `briaguya0/2ship2harkinian` `deterministic-extraction`
