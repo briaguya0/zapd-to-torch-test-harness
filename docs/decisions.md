@@ -135,7 +135,36 @@ It needs replacing rather than removing, and writing MM entries means choosing a
 gbi version, `primary_virtual_segment`, and sort mode — values worth deriving in
 Phase 4 rather than guessing now.
 
-### 15. Reference o2r archives are disposable; the manifests are the reference
+### 15. DMA offsets are sourced from OTRExporter and verified, not hardcoded
+
+`OTRExporter/rom_info.py` is the authoritative source — it is what ZAPD uses to
+locate the table, so it is by construction the offset that produced our
+reference. MM NTSC-U 1.0 is `0x1A500` with `mm.txt`; GC US is `0x1AE90` with
+`mm_gc.txt`. It keys on ROM CRC (bytes `[16:20]`), not SHA1.
+
+`extract_dma.py` now **verifies** the offset on every run rather than trusting
+it: the `dmadata` entry must self-reference the table's location, and the entry
+count must match the filelist length. The OoT side had neither check, and its
+`ntsc_1-2` offset was wrong for a while — the misaligned table dropped `code`
+entirely and corrupted the generated supplemental (harness commit `00bbf35`).
+Both checks reject a one-entry misalignment, which is that exact failure mode.
+
+Full write-up in `mm-dma.md`.
+
+*Rejected:* locating the table by structural scan. Written and nearly run before
+finding `rom_info.py` — self-validating, but it reinvents a lookup that already
+exists in the toolchain that produced the reference. The self-reference check
+keeps the useful half of the idea.
+
+### 16. Absent DMA entries are flagged, not dropped or silently emitted
+
+17 of MM's 1552 entries have `phys_start == phys_end == 0xFFFFFFFF`: present in
+the virtual map, absent from the ROM. OoT has no such entries and its extractor
+had no concept of them — it would have emitted `0xFFFFFFFF` as a real segment
+base. They carry `"absent": true` so downstream can skip them deliberately, and
+so the 17 names aren't quietly lost either.
+
+### 17. Reference o2r archives are disposable; the manifests are the reference
 
 `test_assets.py` scores against `manifests/<version>.json`, not against an
 archive, so the archives themselves need not be kept once hashed.
