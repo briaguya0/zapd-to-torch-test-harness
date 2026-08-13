@@ -5,8 +5,8 @@ the OTRExporter reference for NTSC-U 1.0).
 
 ```
 generated 49354 of 50496 reference assets
-  PASS  50092      (99.2%)
-  FAIL    384
+  PASS  50166      (99.3%)
+  FAIL    310
   EXTRA     0
   not generated  20
 ```
