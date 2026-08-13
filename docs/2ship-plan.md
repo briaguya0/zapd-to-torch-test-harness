@@ -62,15 +62,12 @@ current tip `2ab12fe9`). Our `torch/` submodule points at briaguya0/Torch
    64 lines across `src/Companion.{cpp,h}`). It adds a `filelist:` key on the ROM config
    pointing at a `Files:` name→offset YAML, and lets `segments:` entries and asset
    `offset:` fields be a DMA file *name* instead of a hex literal.
-3. Fix two defects in it before relying on it:
-   - It gates on `StringHelper::IsValidHex`, which requires a `0x` prefix and length ≥ 3
-     (`src/utils/StringHelper.cpp:128`). So `offset: 0` falls through to a filelist
-     lookup and throws. `StringHelper::IsValidOffset` (same file, line 142) exists for
-     exactly this case — use it.
-   - `GetFileOffsetFromName` uses `.at()`, so an unknown name throws a bare
-     `std::out_of_range` naming neither the offending symbol nor the file it came from.
+3. One fix on top of it: it gates on `StringHelper::IsValidHex`, which requires a `0x`
+   prefix and length ≥ 3 (`src/utils/StringHelper.cpp:128`), so a bare `offset: 0` falls
+   through to a filelist lookup and throws. `StringHelper::IsValidOffset` (same file,
+   line 142) exists for exactly this case — use it.
 
-   The API rename it performs (`GetFileOffset` → `GetFileOffsetFromName`,
+   Otherwise leave the PR alone. The API rename it performs (`GetFileOffset` → `GetFileOffsetFromName`,
    `GetCurrSegmentNumber` dropping its `optional`) touches **zero** call sites — both are
    declared in `Companion.h` and never called — so the merge itself should be clean.
 
