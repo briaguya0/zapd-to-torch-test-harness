@@ -600,9 +600,19 @@ def process_xml(xml_path, xml_rel_path, dma_table, out_dir, allowed_types, xml_d
                 if not gk_already:
                     file_extra_segments.append((4, gk_name))
                     file_external_files.append(f"{out_prefix}/objects/{gk_name}.yml")
-            # Auto-add segments 8-13 = same file (used for skeleton/limb texture references)
-            # OoT uses these segments for eye textures, mouth textures, and limb DLists
+            # Auto-add segments 8-13 = same file (used for skeleton/limb texture references).
+            # OoT uses these for eye textures, mouth textures, and limb DLists.
+            #
+            # Only segments ABOVE the file's own. Torch treats a segment as an alias
+            # when a lower-numbered segment maps to the same file offset
+            # (IsAliasSegment in OoTDListHelpers.cpp), and emits pointer+1 for
+            # anything reaching it rather than resolving. That never bites OoT,
+            # whose objects sit on segment 6 with all of 8-13 above it. MM puts 24
+            # mask objects on segment 10 and its code files on 0x80, so adding 8 and
+            # 9 underneath made every vertex reference in them look like an alias.
             for extra_seg in range(8, 14):
+                if extra_seg <= segment:
+                    continue
                 if not any(seg == extra_seg for seg, _ in file_extra_segments):
                     file_extra_segments.append((extra_seg, seg_base))
 
