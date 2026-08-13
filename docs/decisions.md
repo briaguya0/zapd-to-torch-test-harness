@@ -252,3 +252,57 @@ byte-identical. Full write-up in `mm-yar-archives.md`.
 
 `test_assets.py` scores against `manifests/<version>.json`, not against an
 archive, so the archives themselves need not be kept once hashed.
+
+### 23. MM: types resolve to the OoT factories, and that is measured not assumed
+
+MM runs on the same engine as OoT and declares the same formats, so `MM:` names
+were registered against the existing OoT factories and the result scored per type.
+TEXTURE (13542/13542), MM:ANIMATION (1755/1755), MM:PLAYER_ANIMATION (695/695) and
+MM:MTX (11/11) come out byte-identical with no MM code at all.
+
+That is the evidence for phase 2: those factories move to a shared `zelda64/`
+namespace rather than being copied. Types that do *not* match — limbs, cutscenes,
+text — are the ones that earn real MM implementations. Current standing:
+`mm-status.md`.
+
+Shared code had to learn both prefixes: `OoTDListHelpers` hardcoded `OOT:ARRAY`
+and `OOT:MTX`. `ExportMtx` could not simply try each candidate, because
+`GetSafeStringByAddr` throws when a node exists with a different type instead of
+returning nullopt — it resolves the node once and checks its type against the
+accepted set.
+
+### 24. An OoT regression gate that needs no Shipwright build
+
+Shared torch code is now being changed for MM, so OoT needs a gate. Rather than
+build Shipwright, `tools/oot_gate.sh` recovers the OoT manifest and config from
+git history (they were deleted in a20b505), uses the OoT YAML trees already in the
+working tree, and the ROMs in `roms/oot/`. Nothing recovered is committed.
+
+pal_gc: 35386 matching, 0 mismatched. Every torch change since has been checked
+against it.
+
+### 25. Four MM conventions the ported converter got wrong, each found by a crash
+
+Recorded because all four look correct when reading the OoT code:
+
+- `Limb` carries its kind in `Type`; OoT used `Type` for the *skeleton* kind, so
+  limbs emitted `skel_type` and the factory found no `limb_type`.
+- MM has no `code/sys_matrix.xml` and no `gMtxClear`, but room DLists were given it
+  as an external file unconditionally.
+- MM scene files have no `_scene` suffix, so the "is this a room" test matched
+  scenes too, giving each a duplicate segment 2 and an `external_files` entry
+  pointing at itself.
+- The text element is `TextMM`, so it never received `code_phys_start`.
+
+### 26. Deferring beats emitting something plausible but wrong
+
+`MM:PATH` (688 assets) has a working factory but needs `num_paths`, which OoT got
+from a scene-command scan that does not exist for MM. Emitting paths without it
+makes the factory follow a garbage pointer and abort. It sits in `DEFERRED_TYPES`
+with the reason attached, rather than being emitted and quietly producing garbage.
+
+Same reasoning for the 1929 failing limbs: the diff is a single `skinVtxCnt` field
+that the reference fills on limbs that have no such field, most likely ZAPD
+residue. Reproducing residue is guessable, and guessing wrong yields 1929
+plausible-looking wrong assets, so it waits for the ordering analysis that would
+confirm it.
