@@ -5,8 +5,8 @@ the OTRExporter reference for NTSC-U 1.0).
 
 ```
 generated 49354 of 50496 reference assets
-  PASS  47622      (94.3%)
-  FAIL   1600
+  PASS  48310      (95.7%)
+  FAIL   1078
   EXTRA   132
 ```
 
@@ -38,6 +38,7 @@ rather than writing MM copies.
 | MM:ARRAY | 10476 / 10477 |
 | MM:SKELETON | 213 / 214 |
 | MM:LIMB | 3495 / 3495 |
+| MM:PATH | 688 / 688 |
 | MM:COLLISION | 286 / 290 |
 | BLOB | 234 |
 
@@ -47,7 +48,7 @@ rather than writing MM copies.
 |------|--------:|-----------|
 | *(auto-discovered)* | 621 | assets torch generates itself, so no YAML declares them: **522 paths**, 79 rooms, 20 audio samples |
 | GFX | 438 | not yet diagnosed |
-| MM:ROOM | 414 | plus 79 auto-discovered below — ~493 of 595 wrong, now the largest area. ZAPD's uninitialized room fields are fixed; what remains is ours (our output is a byte short — torch writes one fewer field than MM's room command set has) |
+| MM:ROOM | 595 | MM room commands torch does not implement; see mm-remaining-work.md |
 | MM:SCENE | 102 | MM's scene command set diverges from OoT's; see paths below |
 | MM:CUTSCENE | 17 | MM's cutscene command set diverges from OoT's |
 | MM:COLLISION | 4 | not yet diagnosed |

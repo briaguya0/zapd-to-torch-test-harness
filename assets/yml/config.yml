@@ -11,6 +11,7 @@ d6133ace5afaa0882cf214cf88daba39e266c078:
   path: ntsc_u
   filelist: ntsc_u.filelist.yml
   config:
+    game: MM
     gbi: F3DEX2_OoT
     sort: OFFSET
     logging: CRITICAL

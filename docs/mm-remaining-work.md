@@ -1,6 +1,7 @@
 # Plan for the remaining 1600 failures
 
-Standing at the time of writing: **47622 pass, 1600 fail, 132 extra** of 50496.
+Standing: **48310 pass, 1078 fail, 132 extra** of 50496. Phase A2 (paths) is
+**done** — 688/688 byte-identical.
 Every figure below is measured, and each diagnosis names the source line it came
 from. See `mm-status.md` for the scoreboard and `decisions.md` for how we got here.
 
@@ -9,7 +10,6 @@ from. See `mm-status.md` for the scoreboard and `decisions.md` for how we got he
 | Reference type | Failing | Size relationship | Cause |
 |----------------|--------:|-------------------|-------|
 | OROM (rooms) | 595 | 414 are **ours −1 byte**, rest vary | MM room commands torch does not implement |
-| OPTH (paths) | 522 | ours short by an exact **multiple of 3** | MM writes 3 bytes per pathway torch omits |
 | ODLT (dlists) | 438 | 295 same size, 143 **ours −8** | two distinct issues, see below |
 | OSMP (samples) | 20 | — | audio; no MM factory |
 | OCVT (cutscenes) | 17 | — | MM cutscene commands |
@@ -45,7 +45,25 @@ SetCutscenesMM          = 0x1F   // not a real opcode; ZAPD invents it for OTRs
 `0x19` is a **reuse, not an addition** — writing OoT's `SetCameraSettings` there
 produces silent garbage rather than an error, so this needs care.
 
-### A2. Paths — 522 assets, fully diagnosed
+### A2. Paths — DONE (688/688)
+
+Implemented in torch `aaa70f5`. Two changes, the second only visible after the
+first:
+
+1. MM carries `unk1`/`unk2` per pathway where OoT has padding — the three bytes
+   that made every failure short by a multiple of 3.
+2. OoT's alternate headers export only the first pathway of a shared list; MM
+   exports all. Instrumenting showed exactly 19 truncations against exactly 19
+   remaining failures.
+
+Both gated on a new `game:` key in the rom config (`OOT` default, `MM`), declared
+rather than sniffed. That key is now available for phases A1/A3/A4.
+
+`MM:PATH` stays in `DEFERRED_TYPES`, and that is now the correct permanent state
+rather than a workaround: all 688 paths come from the scene command writer as
+companion files, so declaring them from supplemental would be redundant.
+
+<details><summary>Original diagnosis</summary>
 
 `OTRExporter/PathExporter.cpp`:
 
@@ -65,8 +83,7 @@ Torch's `OoTPathFactory::parse` reads the 8-byte entry as
 bytes are `unk1` and `unk2`, and `ZPath.cpp:123-126` confirms they are read
 straight from ROM, so they are deterministic and simply need carrying through.
 
-Also needs `num_paths`, which is why paths are currently in `DEFERRED_TYPES` — the
-count comes from the scene's path command, so it falls out of A1 for free.
+</details>
 
 ### A3. Rooms
 
@@ -84,7 +101,7 @@ this is not a blanket naming rule — our discovery is finding cutscenes at offs
 ZAPD does not emit. `SetCutscenesMM = 0x1F` being a synthetic opcode is the likely
 reason and should be read first.
 
-**Expected yield: ~1270 assets, taking the total to roughly 98%.**
+**Remaining phase A yield: ~750 assets (rooms, scenes, cutscenes, extras).**
 
 ---
 
@@ -136,8 +153,8 @@ Still deferred, unchanged, and tracked in `mm-status.md`:
 
 ## Order and rationale
 
-1. **A2 paths first.** Fully diagnosed, self-contained, 522 assets, and it
-   validates the MM-vs-OoT divergence pattern on the smallest possible surface.
+1. ~~**A2 paths.**~~ Done — and it established the `game:` config key and the
+   branch-don't-fork pattern the rest of phase A should follow.
 2. **A1 + A3 + A4**, which are one change to the scene/room command writer.
 3. **B**, after A, since some DList failures sit inside rooms and may move.
 4. **C** last.
