@@ -164,26 +164,20 @@ then skeletons/animations, collision, scenes/rooms, cutscenes, text, audio — u
 
 ## Verification
 
-**OoT invariance gate — run after every Torch change in Phases 1, 2, and 5.** Since
-Phases 1–2 are behaviour-preserving, the check is byte-identity against a baseline, which
-needs no reference manifest and no committed ROM data:
+**OoT invariance gate — run after every Torch change.** Torch's OoT factories are
+shared code that the MM work keeps modifying, so OoT is re-checked every time:
 
 ```sh
-# Baseline, built once: shipwright develop with torch @ upstream main
-cmake --build build --target ExtractAssets   # SOH_ROM_PATH=<pal_gc retail rom>
-cp build/soh/oot.o2r o2r/reference.o2r
-
-# After a change: same build, torch submodule @ our branch
-cp build/soh/oot.o2r o2r/torch.o2r
-./check.sh          # file lists + per-file sha256; exits non-zero on any diff
+./tools/oot_gate.sh pal_gc      # 35386 matching, 0 mismatched
 ```
 
-One ROM (pal_gc retail) per change; the full matrix is Phase 6. `check.sh` reports
-missing / extra / mismatched counts and needs no modification.
+It needs no Shipwright build, which is why the `shipwright/` submodule was dropped:
+the OoT manifest and config are recovered from git history (this branch deleted
+them in a20b505), the YAML trees are already in the working tree, and the ROMs are
+in `roms/oot/`. Nothing it recovers is committed.
 
-**MM progress metric:** `python3 tools/test_assets.py <mm rom> --rom-version ntsc_u`,
-scored against `manifests/ntsc_u.json`. Done is `0 failed, 0 not generated, 0 not in
-reference`.
+**MM progress metric:** `./tools/score.sh`, scored against `manifests/ntsc_u.json`
+and attributed to the declaring asset type. Done is `0 failed, 0 extra`.
 
 **Constraint check before every commit:** confirm no added file contains ROM bytes —
 manifests are hashes, `dma/` and supplemental are offsets and names.

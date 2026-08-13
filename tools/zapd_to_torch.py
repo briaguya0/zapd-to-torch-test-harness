@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert ZAPD/Shipwright XML asset definitions to Torch YAML format.
+"""Convert 2ship/ZAPD MM XML asset definitions to Torch YAML format.
 
 Reads XML asset definitions, converts them to Torch YAML, and injects the
 supplemental asset metadata (VTX arrays, child DLists, limbs, collision, Set_
@@ -10,17 +10,16 @@ Usage:
 
 Example:
     python3 tools/zapd_to_torch.py \
-        --xml-dir shipwright/soh/assets/xml/GC_NMQ_PAL_F \
-        --dma-json dma/pal_gc.json \
-        --out-dir assets/yml/pal_gc \
-        --supplemental-json supplemental/pal_gc.json
+        --xml-dir 2ship/mm/assets/xml/N64_US \
+        --dma-json dma/ntsc_u.json \
+        --out-dir assets/yml/ntsc_u \
+        --supplemental-json supplemental/ntsc_u.json
 
-    # Only convert specific types:
+    # Only convert specific types (dependencies are pulled in automatically):
     python3 tools/zapd_to_torch.py \
-        --xml-dir shipwright/soh/assets/xml/GC_NMQ_PAL_F \
-        --dma-json dma/pal_gc.json \
-        --out-dir assets/yml/pal_gc \
-        --supplemental-json supplemental/pal_gc.json \
+        --xml-dir 2ship/mm/assets/xml/N64_US \
+        --dma-json dma/ntsc_u.json \
+        --out-dir assets/yml/ntsc_u \
         --types Texture,Blob,DList
 """
 

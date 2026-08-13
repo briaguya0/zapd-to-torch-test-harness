@@ -2,11 +2,7 @@
 	path = torch
 	url = https://github.com/briaguya0/Torch.git
 	branch = mm-support
-[submodule "shipwright"]
-	path = shipwright
-	url = https://github.com/HarbourMasters/Shipwright.git
-	branch = develop
 [submodule "2ship"]
 	path = 2ship
-	url = https://github.com/HarbourMasters/2ship2harkinian.git
-	branch = develop
+	url = https://github.com/briaguya0/2ship2harkinian.git
+	branch = deterministic-extraction

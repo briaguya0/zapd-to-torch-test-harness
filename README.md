@@ -51,7 +51,7 @@ Full breakdown, diagnoses, and what is deferred and why: **[docs/mm-status.md](d
 
 ```
 torch/        Torch submodule (briaguya0/Torch mm-support; build to torch/build/torch)
-2ship/        2ship2harkinian submodule (ZAPD XMLs + DMA filelists)
+2ship/        2ship submodule (briaguya0 deterministic-extraction; ZAPD XMLs + filelists)
 tools/        converters, generators, and the two scoring drivers
 assets/yml/   config.yml + <version>.filelist.yml (committed); <version>/ generated
 dma/          DMA tables per ROM version
@@ -154,6 +154,7 @@ Torch change is checked against OoT:
 ./tools/oot_gate.sh pal_gc      # 35386 matching, 0 mismatched
 ```
 
-It needs no Shipwright build: the OoT manifest and config are recovered from git
-history (this branch deleted them), the YAML trees are in the working tree, and
-the ROMs are in `roms/oot/`. Nothing it recovers is committed.
+It needs no Shipwright build — which is why there is no `shipwright/` submodule. The
+OoT manifest and config are recovered from git history (this branch deleted them in
+`a20b505`), the YAML trees are already in the working tree, and the ROMs are in
+`roms/oot/`. Nothing it recovers is committed.
